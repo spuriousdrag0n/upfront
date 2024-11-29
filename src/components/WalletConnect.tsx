@@ -1,15 +1,18 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
+import CryptoJS from 'crypto-js';
 import { formatUnits, ethers } from 'ethers';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { arbitrum, mainnet } from '@reown/appkit/networks';
 import { EthersAdapter } from '@reown/appkit-adapter-ethers';
 import { createAppKit, useAppKitAccount } from '@reown/appkit/react';
 
 import DragAndDrop from './DragAndDrop';
+import { pinata } from '../utils/config';
+import { getUserData, saveUserData } from '../utils/http';
 
 const projectId = '218f573f7987430400eac25d58a0ca68';
 
-// 3. Create a metadata object - optional
 const metadata = {
   name: 'my-project',
   description: 'AppKit Example',
@@ -25,19 +28,53 @@ const appKit = createAppKit({
   features: { analytics: true },
 });
 
-interface TokenAsset {
-  symbol: string;
-  balance: string;
-  address: string;
-}
+// interface TokenAsset {
+//   symbol: string;
+//   balance: string;
+//   address: string;
+// }
 
 const WalletConnect = () => {
   const { address, isConnected } = useAppKitAccount();
 
   const [file, setFile] = useState<File | null>(null);
-
-  const [assets, setAssets] = useState<TokenAsset[]>([]);
   const [balance, setBalance] = useState<string | null>(null);
+  const [encryptedFile, setEncryptedFile] = useState<string | null>(null);
+  const [decryptedImage, setDecryptedImage] = useState<string | null>(null);
+
+
+  const { mutate, isPending } = useMutation({
+    mutationKey: ['save-user-data'],
+    mutationFn: saveUserData,
+  });
+
+  const { data } = useQuery({
+    queryKey: ['get-user-data'],
+    queryFn: () => getUserData(address!),
+    enabled: !!address,
+  });
+
+  useEffect(() => {
+    if (!data) return;
+
+    const getImage = async () => {
+      const ipfsUrl = await pinata.gateways.convert(data.user.image);
+
+      try {
+        const response = await fetch(ipfsUrl);
+        const encryptedData = await response.text();
+        const decrypted = CryptoJS.AES.decrypt(encryptedData, 'secret-key');
+        const decryptedUrl = decrypted.toString(CryptoJS.enc.Utf8);
+
+
+        setDecryptedImage(decryptedUrl);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    getImage();
+  }, [data]);
 
   const getBalance = async () => {
     if (!isConnected) {
@@ -55,49 +92,49 @@ const WalletConnect = () => {
     await appKit.open({ view: 'Connect' });
   };
 
-  const getAssets = async () => {
-    if (!isConnected || !address) {
-      console.log('No connection or address');
-      return;
-    }
-    const provider = new ethers.BrowserProvider(window.ethereum);
+  const encryptImage = (file: File) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
 
-    const tokenAddresses = [
-      address,
-      // '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8', // USDC
-      // '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9', // USDT
-      // '0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f', // WBTC
-    ];
+      reader.onload = () => {
+        const encrypted = CryptoJS.AES.encrypt(
+          reader.result as string,
+          'secret-key'
+        ).toString();
 
+        resolve(encrypted);
+      };
+
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const clickHandler = () => {
+    encryptImage(file!).then((res) => {
+      console.log(res);
+
+      setEncryptedFile(res as string);
+    });
+  };
+
+  const handleSubmission = async () => {
     try {
-      const tokenPromises = tokenAddresses.map(async (tokenAddress) => {
-        const tokenContract = new ethers.Contract(
-          tokenAddress,
-          [
-            'function balanceOf(address) view returns (uint256)',
-            'function symbol() view returns (string)',
-          ],
-          provider
-        );
+      if (!encryptedFile) return;
 
-        const [balance, symbol] = await Promise.all([
-          tokenContract.balanceOf(address),
-          tokenContract.symbol(),
-        ]);
+      const encryptedBlob = new Blob([encryptedFile], { type: 'text/plain' });
 
-        return {
-          symbol,
-          balance: formatUnits(balance, 18), // Note: You might need to adjust decimals per token
-          address: tokenAddress,
-        };
-      });
+      const encryptedFileObj = new File(
+        [encryptedBlob],
+        `encrypted-${file!.name}`,
+        { type: 'text/plain' }
+      );
 
-      const tokenAssets = await Promise.all(tokenPromises);
-      console.log(tokenAssets);
+      const upload = await pinata.upload.file(encryptedFileObj);
 
-      // setAssets(tokenAssets);
+
+      mutate({ address: address!, image: upload.IpfsHash });
     } catch (error) {
-      console.error('Error fetching tokens:', error);
+      console.log(error);
     }
   };
 
@@ -127,15 +164,46 @@ const WalletConnect = () => {
 
           <input
             type="text"
-            // value={price ?? ''}
             placeholder="0.00"
-            // onChange={(e) => setPrice(e.target.value)}
             className="w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
           />
         </div>
       </div>
 
-      {/* {!address ? (
+      <p className="flex gap-7">
+        <button
+          onClick={getBalance}
+          className="bg-teal-500 p-3 text-white rounded-3xl my-5 w-60 hover:bg-teal-600 transition"
+        >
+          Get Balance
+        </button>
+
+        <button
+          onClick={clickHandler}
+          className="bg-teal-500 p-3  text-white rounded-3xl my-5 w-60 hover:bg-teal-600 transition"
+        >
+          Encrypt Image
+        </button>
+
+        <button
+          onClick={handleSubmission}
+          className="bg-teal-500 p-3  text-white rounded-3xl my-5 w-60 hover:bg-teal-600 transition"
+        >
+          {isPending ? 'Loading...' : 'Upload File'}
+        </button>
+      </p>
+
+
+      {decryptedImage && <img src={decryptedImage} alt="Decrypted" />}
+    </div>
+  );
+};
+
+export default WalletConnect;
+
+/*
+
+{!address ? (
         <button
           onClick={handleConnect}
           className="bg-indigo-500 text-white p-3 rounded-md"
@@ -154,16 +222,57 @@ const WalletConnect = () => {
             ))}
           </ul>
         </div>
-      )} */}
+      )}
+*/
 
-      <button
-        onClick={getBalance}
-        className="bg-teal-500 p-3 text-white rounded-3xl my-5 w-60 hover:bg-teal-600 transition"
-      >
-        Generate Link
-      </button>
+// const getAssets = async () => {
+//   if (!isConnected || !address) {
+//     console.log('No connection or address');
+//     return;
+//   }
+//   const provider = new ethers.BrowserProvider(window.ethereum);
 
-      {/* <button
+//   const tokenAddresses = [
+//     address,
+//     // '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8', // USDC
+//     // '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9', // USDT
+//     // '0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f', // WBTC
+//   ];
+
+//   try {
+//     const tokenPromises = tokenAddresses.map(async (tokenAddress) => {
+//       const tokenContract = new ethers.Contract(
+//         tokenAddress,
+//         [
+//           'function balanceOf(address) view returns (uint256)',
+//           'function symbol() view returns (string)',
+//         ],
+//         provider
+//       );
+
+//       const [balance, symbol] = await Promise.all([
+//         tokenContract.balanceOf(address),
+//         tokenContract.symbol(),
+//       ]);
+
+//       return {
+//         symbol,
+//         balance: formatUnits(balance, 18), // Note: You might need to adjust decimals per token
+//         address: tokenAddress,
+//       };
+//     });
+
+//     const tokenAssets = await Promise.all(tokenPromises);
+//     console.log(tokenAssets);
+
+//     // setAssets(tokenAssets);
+//   } catch (error) {
+//     console.error('Error fetching tokens:', error);
+//   }
+// };
+
+/*
+<button
         onClick={getBalance}
         className="bg-teal-500 p-3 text-white rounded-md my-5"
       >
@@ -175,9 +284,6 @@ const WalletConnect = () => {
         className="bg-teal-500 p-3 text-white rounded-md my-5 ml-5"
       >
         Get Assets Inside Wallet
-      </button> */}
-    </div>
-  );
-};
+      </button>
+*/
 
-export default WalletConnect;

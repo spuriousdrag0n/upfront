@@ -1,5 +1,5 @@
 import './App.css';
-import NormalApp from './components/NormalApp';
+// import NormalApp from './components/NormalApp';
 import WalletConnect from './components/WalletConnect';
 
 function App() {
