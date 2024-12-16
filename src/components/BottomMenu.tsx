@@ -17,6 +17,7 @@ const BottomMenu = () => {
     <footer className="flex w-full sticky z-50 left-0 bottom-0 justify-between px-[10%] py-5 bg-gray-100 rounded-lg">
       {LINKS.map(({ name, path, Icon }) => (
         <NavLink
+          key={name}
           to={path}
           className={({ isActive }) =>
             isActive

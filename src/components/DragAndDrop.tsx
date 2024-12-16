@@ -26,7 +26,7 @@ const DragAndDrop = ({ file, onChange }: Props) => {
   return (
     <div
       {...getRootProps()}
-      className={`border-2 border-dashed p-6 rounded-lg text-center ${
+      className={`border-2 border-dashed p-6 rounded-lg text-center h-28 ${
         isDragActive ? 'border-blue-600 bg-blue-100' : 'border-teal-500'
       }`}
     >

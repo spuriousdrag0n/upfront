@@ -42,7 +42,6 @@ const WalletConnect = () => {
   const [encryptedFile, setEncryptedFile] = useState<string | null>(null);
   const [decryptedImage, setDecryptedImage] = useState<string | null>(null);
 
-
   const { mutate, isPending } = useMutation({
     mutationKey: ['save-user-data'],
     mutationFn: saveUserData,
@@ -65,7 +64,6 @@ const WalletConnect = () => {
         const encryptedData = await response.text();
         const decrypted = CryptoJS.AES.decrypt(encryptedData, 'secret-key');
         const decryptedUrl = decrypted.toString(CryptoJS.enc.Utf8);
-
 
         setDecryptedImage(decryptedUrl);
       } catch (error) {
@@ -131,7 +129,6 @@ const WalletConnect = () => {
 
       const upload = await pinata.upload.file(encryptedFileObj);
 
-
       mutate({ address: address!, image: upload.IpfsHash });
     } catch (error) {
       console.log(error);
@@ -192,7 +189,6 @@ const WalletConnect = () => {
           {isPending ? 'Loading...' : 'Upload File'}
         </button>
       </p>
-
 
       {decryptedImage && <img src={decryptedImage} alt="Decrypted" />}
     </div>
@@ -286,4 +282,3 @@ export default WalletConnect;
         Get Assets Inside Wallet
       </button>
 */
-
