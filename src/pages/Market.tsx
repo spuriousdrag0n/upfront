@@ -57,7 +57,10 @@ const Market = () => {
 
       <ul className="flex justify-between gap-6 mt-4 mx-4">
         {DUMMY_DATA.map((i) => (
-          <li className="bg-[#F8F9FD] p-2 rounded-lg text-center flex-1">
+          <li
+            key={i}
+            className="bg-[#F8F9FD] p-2 rounded-lg text-center flex-1"
+          >
             <span className="text-center text-[#94A3B8]">{i}</span>
           </li>
         ))}
@@ -69,8 +72,8 @@ const Market = () => {
         <Swiper
           slidesPerView={1}
           spaceBetween={50}
-          onSlideChange={() => console.log('slide change')}
-          onSwiper={(swiper) => console.log(swiper)}
+          // onSlideChange={() => console.log('slide change')}
+          // onSwiper={(swiper) => console.log(swiper)}
         >
           {Array.from({ length: 4 }, (_, i) => i).map((i) => (
             <SwiperSlide
@@ -137,7 +140,10 @@ const Market = () => {
 
         <ul className="space-y-4 mt-6">
           {DUMMY_CARD_DATA.map(({ subTitle, title }) => (
-            <li className="flex justify-between p-4 border border-gray-300 rounded-xl">
+            <li
+              key={title}
+              className="flex justify-between p-4 border border-gray-300 rounded-xl"
+            >
               <div className="flex gap-3 items-center">
                 <FaBitcoin size={30} color="gold" />
 

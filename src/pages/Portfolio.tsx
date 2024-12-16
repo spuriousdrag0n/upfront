@@ -47,7 +47,10 @@ const Portfolio = () => {
         <ul className="space-y-8">
           {DATA.map(({ subTitle, title, Icon }) => {
             return (
-              <li className="border border-gray-300 rounded-xl flex justify-between items-center p-4">
+              <li
+                key={title}
+                className="border border-gray-300 rounded-xl flex justify-between items-center p-4"
+              >
                 <div className="flex gap-4 items-center">
                   <Icon size={30} color="#64748B" />
 

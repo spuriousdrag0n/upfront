@@ -12,8 +12,8 @@ const MyPortfolioSection = () => {
       <Swiper
         slidesPerView={1}
         spaceBetween={50}
-        onSlideChange={() => console.log('slide change')}
-        onSwiper={(swiper) => console.log(swiper)}
+        // onSlideChange={() => console.log('slide change')}
+        // onSwiper={(swiper) => console.log(swiper)}
       >
         {Array.from({ length: 4 }, (_, i) => i).map((i) => (
           <SwiperSlide
