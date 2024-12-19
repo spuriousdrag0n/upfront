@@ -4,6 +4,8 @@ import { CiUser } from 'react-icons/ci';
 import { TbNotes } from 'react-icons/tb';
 import { PiUserListDuotone } from 'react-icons/pi';
 import { IoIosArrowForward } from 'react-icons/io';
+import { useQuery } from '@tanstack/react-query';
+import { getAllFiles } from '../utils/http';
 
 const DATA = [
   {
@@ -24,6 +26,15 @@ const DATA = [
 ];
 
 const Portfolio = () => {
+  const { data } = useQuery({
+    queryKey: ['get-all-files'],
+    queryFn: getAllFiles,
+  });
+
+  if (data) {
+    console.log(data);
+  }
+
   return (
     <div>
       <section className="bg-[#6B39F4] h-[284px] flex justify-center items-center *:text-white">

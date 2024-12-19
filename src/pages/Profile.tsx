@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import CryptoJS from 'crypto-js';
+import { useMutation } from '@tanstack/react-query';
 import { EthersAdapter } from '@reown/appkit-adapter-ethers';
 import { createAppKit, useAppKitAccount } from '@reown/appkit/react';
 import { arbitrum, mainnet, unichainSepolia } from '@reown/appkit/networks';
@@ -8,6 +9,7 @@ import { arbitrum, mainnet, unichainSepolia } from '@reown/appkit/networks';
 import { ethers } from 'ethers';
 import { ABI } from '../constants/ABI';
 import { pinata } from '../utils/config';
+import { createFile } from '../utils/http';
 import DragAndDrop from '../components/DragAndDrop';
 
 const projectId = '218f573f7987430400eac25d58a0ca68';
@@ -46,9 +48,24 @@ const UNICHAIN_TESTNET_PARAMS = {
 };
 
 const Profile = () => {
+  const [price, setPrice] = useState('0');
+  const [isPublic, setIsPublic] = useState(false);
   const { address, isConnected } = useAppKitAccount();
   const [file, setFile] = useState<File | null>(null);
   const [contract, setContract] = useState<ethers.Contract | null>(null);
+
+  const { mutate } = useMutation({
+    mutationKey: ['create-file'],
+    mutationFn: createFile,
+    onError(error) {
+      console.log('ERROR : ', error);
+    },
+
+    onSuccess(data) {
+      console.log('SUCCESS');
+      console.log(data);
+    },
+  });
 
   const handleConnect = async () => {
     await appKit.open({ view: 'Connect' });
@@ -114,29 +131,26 @@ const Profile = () => {
     const encryptedFile = await encryptImage(file);
     const ipfsHash = await uploadHandler(encryptedFile as string);
     console.log('IPFS HASH : ', ipfsHash);
-
-    const timestamp = Date.now();
-    const random = Math.floor(Math.random() * 1000000);
-
-    const fileId = timestamp * 1000000 + random;
+    const fileId = BigInt(Date.now());
+    console.log('FILE ID : ', fileId);
+    console.log('PRICE : ', ethers.parseEther(price));
 
     const tx = await contract.createFile(
       fileId,
-      ethers.parseEther('0.1'),
-      false
+      ethers.parseEther(price),
+      isPublic
     );
 
-    const receipt = await tx.wait();
+    console.log(tx);
 
-    const event = receipt.events?.find(
-      (event) => event.event === 'FileCreated'
-    );
-
-    if (event) {
-      const { fileId, owner, price, isTokenPayment } = event.args;
-
-      console.log('File created successfully:');
-    }
+    mutate({
+      address: address!,
+      ipfsHash,
+      contractHash: tx.hash,
+      fileId: fileId.toString(),
+      isPublic,
+      price,
+    });
   };
 
   useEffect(() => {
@@ -169,6 +183,24 @@ const Profile = () => {
         )}
 
         <DragAndDrop file={file} onChange={setFile} />
+
+        <div className="flex justify-center items-center gap-4">
+          <input
+            min="0"
+            step="1"
+            type="number"
+            placeholder="Enter a price"
+            onChange={(e) => setPrice(e.currentTarget.value)}
+            className="border border-indigo-500 my-5  block rounded-lg px-3 py-1"
+          />
+
+          <label htmlFor="input">is Public</label>
+          <input
+            id="input"
+            type="checkbox"
+            onChange={(e) => setIsPublic(e.currentTarget.checked)}
+          />
+        </div>
 
         <button
           onClick={createFileHandler}
