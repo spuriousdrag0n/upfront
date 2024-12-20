@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 
 import { useDropzone } from 'react-dropzone';
+import { FaPlus } from 'react-icons/fa';
 
 type Props = {
   file: File | null;
@@ -8,8 +9,6 @@ type Props = {
 };
 
 const DragAndDrop = ({ file, onChange }: Props) => {
-  // const [file, setFile] = useState<File | null>(null);
-
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       onChange(acceptedFiles[0]);
@@ -17,30 +16,36 @@ const DragAndDrop = ({ file, onChange }: Props) => {
     [onChange]
   );
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept: { 'image/*': [] },
     maxFiles: 1,
   });
 
   return (
-    <div
-      {...getRootProps()}
-      className={`border-2 border-dashed p-6 rounded-lg text-center h-28 ${
-        isDragActive ? 'border-blue-600 bg-blue-100' : 'border-teal-500'
-      }`}
-    >
-      <input {...getInputProps()} />
-      {file ? (
-        <p className="text-sm text-green-600">File Selected: {file.name}</p>
-      ) : (
-        <p className="text-sm text-gray-500">
-          {isDragActive
-            ? 'Drop the image here...'
-            : 'Drag & drop an image, or click to select'}
-        </p>
-      )}
-    </div>
+    <>
+      <div
+        {...getRootProps()}
+        // className={` text-center   ${
+        //   isDragActive ? 'border-blue-600 bg-blue-100' : 'border-indigo-500'
+        // }`}
+      >
+        <input {...getInputProps()} />
+        {file ? (
+          <>
+            {/* File Selected: {file.name} */}
+            <img
+              src={URL.createObjectURL(file)}
+              className="size-36 mx-auto rounded-lg"
+            />
+          </>
+        ) : (
+          <div className="flex justify-center items-center text-gray-500 size-20 bg-indigo-600  mx-auto rounded-full">
+            <FaPlus size={35} color="#fff" />
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 

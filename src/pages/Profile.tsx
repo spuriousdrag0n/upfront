@@ -138,18 +138,18 @@ const Profile = () => {
     const tx = await contract.createFile(
       fileId,
       ethers.parseEther(price),
-      isPublic
+      false // CHECK LATER
     );
 
     console.log(tx);
 
     mutate({
-      address: address!,
+      price,
       ipfsHash,
+      isPublic,
+      address: address!,
       contractHash: tx.hash,
       fileId: fileId.toString(),
-      isPublic,
-      price,
     });
   };
 
@@ -171,8 +171,10 @@ const Profile = () => {
   }, [isConnected]);
 
   return (
-    <div className="flex justify-center items-center h-[90%]">
-      <div>
+    <div className="flex justify-center h-[88%]">
+      <div className=" pt-9">
+        <h1 className="text-center text-2xl font-bold mb-14">Up front</h1>
+
         {!isConnected && (
           <button
             onClick={handleConnect}
@@ -183,15 +185,19 @@ const Profile = () => {
         )}
 
         <DragAndDrop file={file} onChange={setFile} />
+        <p className="text-center text-xl font-bold mt-3">Add media</p>
+        <p className="text-center  text-gray-600">Of any kind</p>
 
-        <div className="flex justify-center items-center gap-4">
+        <hr className="h-[2px] w-full mt-8 mb-10" />
+
+        <div className="flex justify-center items-center gap-4 bg-gray-100 p-2 rounded-xl border border-indigo-400">
           <input
             min="0"
-            step="1"
+            // step="1"
             type="number"
             placeholder="Enter a price"
+            className="outline-none rounded-lg px-3 py-1"
             onChange={(e) => setPrice(e.currentTarget.value)}
-            className="border border-indigo-500 my-5  block rounded-lg px-3 py-1"
           />
 
           <label htmlFor="input">is Public</label>
@@ -204,7 +210,7 @@ const Profile = () => {
 
         <button
           onClick={createFileHandler}
-          className="bg-indigo-600 p-3 rounded-2xl text-white mx-auto block"
+          className="bg-indigo-600 p-3 w-full rounded-2xl text-white my-12"
         >
           Create File
         </button>

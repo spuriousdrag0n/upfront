@@ -14,14 +14,18 @@ const DUMMY_CARD_DATA = [
   },
 ];
 
+import 'swiper/css';
+
 import { FiCpu } from 'react-icons/fi';
 import { FaSearch } from 'react-icons/fa';
 import { LuBlocks } from 'react-icons/lu';
 import { IoCubeOutline } from 'react-icons/io5';
+import { useQuery } from '@tanstack/react-query';
+import { Swiper, SwiperSlide } from 'swiper/react';
 import { FaBitcoin, FaSackDollar } from 'react-icons/fa6';
 
-import { Swiper, SwiperSlide } from 'swiper/react';
-import 'swiper/css';
+import Item from '../components/Item';
+import { getAllFiles } from '../utils/http';
 
 const SECTORS_DATA = [
   {
@@ -43,6 +47,11 @@ const SECTORS_DATA = [
 ];
 
 const Market = () => {
+  const { data, isLoading } = useQuery({
+    queryKey: ['get-all-files'],
+    queryFn: getAllFiles,
+  });
+
   return (
     <div className="pt-10">
       <div className="bg-[#F8F9FD] mx-7 p-3 rounded-lg flex gap-4 items-center">
@@ -69,7 +78,17 @@ const Market = () => {
       <section className="mt-5 w-[90%] mx-auto">
         <h3 className="text-2xl font-bold mb-5">Stock Futures</h3>
 
-        <Swiper
+        {isLoading && <p>Loading...</p>}
+
+        {data?.data && (
+          <ul className="space-y-5">
+            {data.data.map((file) => (
+              <Item key={file.id} {...file} />
+            ))}
+          </ul>
+        )}
+
+        {/* <Swiper
           slidesPerView={1}
           spaceBetween={50}
           // onSlideChange={() => console.log('slide change')}
@@ -99,7 +118,7 @@ const Market = () => {
               <hr className="border border-gray-100 my-5" />
 
               <div className="flex justify-between">
-                <div className="">
+                <div>
                   <p className="text-[#64748B]">Profits</p>
                   <p className="font-bold text-xl">$16,988</p>
                 </div>
@@ -110,7 +129,7 @@ const Market = () => {
               </div>
             </SwiperSlide>
           ))}
-        </Swiper>
+        </Swiper> */}
       </section>
 
       <section className="w-[90%] mx-auto mt-5">

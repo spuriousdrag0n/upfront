@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { File } from '../types';
 
 axios.defaults.baseURL = 'http://localhost:3000/';
 
@@ -57,5 +58,5 @@ export const getFiles = async ({ address }: { address: string }) => {
 
 export const getAllFiles = async () => {
   const { data } = await axios.get('get-all-files');
-  return data;
+  return data as { data: File[] };
 };
