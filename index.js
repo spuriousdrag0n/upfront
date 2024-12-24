@@ -150,6 +150,52 @@ app.get('/get-all-files', async (req, res) => {
   }
 });
 
+app.post('/add-points', async (req, res) => {
+  const { address, points } = req.body;
+
+  if (!address || !points) {
+    return res.status(400).json({ message: 'Invalid parameters' });
+  }
+
+  try {
+    const currectPoints = await redisClient.get(address);
+    let updatedPoints = points;
+
+    if (currectPoints) {
+      updatedPoints += parseInt(currectPoints, 10);
+    }
+
+    await redisClient.set(address, updatedPoints);
+
+    return res.status(200).json({
+      message: 'Points updated successfully',
+      address,
+      points: updatedPoints,
+    });
+  } catch (error) {
+    console.error('Error updating points:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get('/get-points/:address', async (req, res) => {
+  const { address } = req.params;
+
+  if (!address || typeof address !== 'string') {
+    return res.status(400).json({ error: 'Invalid or missing address' });
+  }
+
+  try {
+    const points = (await redisClient.get(address)) || 0;
+
+    return res.status(200).json({
+      message: 'Points retrieved successfully!',
+      address,
+      points: parseInt(points, 10),
+    });
+  } catch (error) {}
+});
+
 app.post('/clear-database', async (req, res) => {
   try {
     await redisClient.flushAll();
