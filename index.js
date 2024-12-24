@@ -159,7 +159,7 @@ app.post('/add-points', async (req, res) => {
 
   try {
     const currectPoints = await redisClient.get(address);
-    let updatedPoints = points;
+    let updatedPoints = +points;
 
     if (currectPoints) {
       updatedPoints += parseInt(currectPoints, 10);
