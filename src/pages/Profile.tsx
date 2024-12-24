@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import CryptoJS from 'crypto-js';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { EthersAdapter } from '@reown/appkit-adapter-ethers';
 import { createAppKit, useAppKitAccount } from '@reown/appkit/react';
 import { arbitrum, mainnet, unichainSepolia } from '@reown/appkit/networks';
@@ -9,8 +9,9 @@ import { arbitrum, mainnet, unichainSepolia } from '@reown/appkit/networks';
 import { ethers } from 'ethers';
 import { ABI } from '../constants/ABI';
 import { pinata } from '../utils/config';
-import { createFile } from '../utils/http';
+import { addPoints, createFile, getPoints } from '../utils/http';
 import DragAndDrop from '../components/DragAndDrop';
+import { queryClient } from '../main';
 
 const projectId = '218f573f7987430400eac25d58a0ca68';
 
@@ -65,6 +66,20 @@ const Profile = () => {
       console.log('SUCCESS');
       console.log(data);
     },
+  });
+
+  const { mutate: addPointsMutation } = useMutation({
+    mutationKey: ['add-points'],
+    mutationFn: addPoints,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['get-points', { address }] });
+    },
+  });
+
+  const { data } = useQuery({
+    queryKey: ['get-points', { address }],
+    queryFn: () => getPoints({ address: address! }),
+    enabled: !!address,
   });
 
   const handleConnect = async () => {
@@ -151,6 +166,8 @@ const Profile = () => {
       contractHash: tx.hash,
       fileId: fileId.toString(),
     });
+
+    addPointsMutation({ address: address!, points: '50' });
   };
 
   useEffect(() => {
@@ -216,6 +233,7 @@ const Profile = () => {
         </button>
 
         {isConnected && address && <p>{address}</p>}
+        {data && <p> Your Points : {data.points}</p>}
       </div>
     </div>
   );

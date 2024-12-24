@@ -60,3 +60,20 @@ export const getAllFiles = async () => {
   const { data } = await axios.get('get-all-files');
   return data as { data: File[] };
 };
+
+type Point = {
+  address: string;
+  points: string;
+};
+
+export const addPoints = async ({ address, points }: Point) => {
+  const { data } = await axios.post('add-points', { address, points });
+
+  return data;
+};
+
+export const getPoints = async ({ address }: { address: string }) => {
+  const { data } = await axios.get(`get-points/${address}`);
+
+  return data;
+};
