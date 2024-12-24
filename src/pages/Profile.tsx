@@ -1,17 +1,18 @@
 import { useEffect, useState } from 'react';
 
+import { ethers } from 'ethers';
 import CryptoJS from 'crypto-js';
+import { BallTriangle } from 'react-loader-spinner';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { EthersAdapter } from '@reown/appkit-adapter-ethers';
 import { createAppKit, useAppKitAccount } from '@reown/appkit/react';
 import { arbitrum, mainnet, unichainSepolia } from '@reown/appkit/networks';
 
-import { ethers } from 'ethers';
+import { queryClient } from '../main';
 import { ABI } from '../constants/ABI';
 import { pinata } from '../utils/config';
-import { addPoints, createFile, getPoints } from '../utils/http';
 import DragAndDrop from '../components/DragAndDrop';
-import { queryClient } from '../main';
+import { addPoints, createFile, getPoints } from '../utils/http';
 
 const projectId = '218f573f7987430400eac25d58a0ca68';
 
@@ -51,6 +52,7 @@ const UNICHAIN_TESTNET_PARAMS = {
 const Profile = () => {
   const [price, setPrice] = useState('0');
   const [isPublic, setIsPublic] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const { address, isConnected } = useAppKitAccount();
   const [file, setFile] = useState<File | null>(null);
   const [contract, setContract] = useState<ethers.Contract | null>(null);
@@ -143,6 +145,8 @@ const Profile = () => {
   const createFileHandler = async () => {
     if (!file || !contract) return;
 
+    setIsLoading(true);
+
     const encryptedFile = await encryptImage(file);
     const ipfsHash = await uploadHandler(encryptedFile as string);
     console.log('IPFS HASH : ', ipfsHash);
@@ -168,6 +172,8 @@ const Profile = () => {
     });
 
     addPointsMutation({ address: address!, points: '50' });
+
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -226,10 +232,15 @@ const Profile = () => {
         </div>
 
         <button
+          disabled={isLoading}
           onClick={createFileHandler}
-          className="bg-indigo-600 p-3 w-full rounded-2xl text-white my-12"
+          className="bg-indigo-600 p-3 w-full rounded-2xl text-white flex justify-center my-12"
         >
-          Create File
+          {isLoading ? (
+            <BallTriangle height={25} width={25} color="#fff" />
+          ) : (
+            'Create File'
+          )}
         </button>
 
         {isConnected && address && <p>{address}</p>}

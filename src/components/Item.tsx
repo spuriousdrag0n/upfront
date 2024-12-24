@@ -9,12 +9,14 @@ import { ethers } from 'ethers';
 import { ABI } from '../constants/ABI';
 import { pinata } from '../utils/config';
 import { addPoints } from '../utils/http';
+import { BallTriangle } from 'react-loader-spinner';
 
 const CONTRACT_ADDRESS = '0x9e76aab5e4d17Ee17426954f8aFF11Bb569a64C2';
 
 const Item = ({ price, userAddress, createdAt, ipfsHash, fileId }: File) => {
   const { address } = useAppKitAccount();
 
+  const [isLoading, setIsLoading] = useState(false);
   const [image, setImage] = useState<string | null>(null);
 
   const { mutate } = useMutation({
@@ -44,6 +46,8 @@ const Item = ({ price, userAddress, createdAt, ipfsHash, fileId }: File) => {
   const buyHandler = async () => {
     if (!window.ethereum) return;
 
+    setIsLoading(true);
+
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
     const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
@@ -57,6 +61,8 @@ const Item = ({ price, userAddress, createdAt, ipfsHash, fileId }: File) => {
 
     mutate({ address: address!, points: '100' });
 
+    setIsLoading(false);
+
     console.log('Transaction successful:', receipt);
   };
 
@@ -66,7 +72,6 @@ const Item = ({ price, userAddress, createdAt, ipfsHash, fileId }: File) => {
       {image && <img src={image} className="w-full h-28 rounded-md mb-5" />}
 
       <>
-        <p>Address: {userAddress}</p>
         <p>Owner: {address === userAddress ? 'you are owner' : ''}</p>
         <p>Created At: {new Date(createdAt).toLocaleDateString('en-US')}</p>
       </>
@@ -84,7 +89,11 @@ const Item = ({ price, userAddress, createdAt, ipfsHash, fileId }: File) => {
             onClick={buyHandler}
             className="bg-indigo-700 text-white rounded-xl px-7"
           >
-            Buy
+            {isLoading ? (
+              <BallTriangle height={25} width={25} color="#fff" />
+            ) : (
+              'Buy'
+            )}
           </button>
         )}
       </div>
