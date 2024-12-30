@@ -12,7 +12,9 @@
   "dependencies": {
     "@redis/client": "^1.6.0",
     "cors": "^2.8.5",
+    "discord.js": "^14.16.3",
     "express": "^4.21.1",
+    "node-telegram-bot-api": "^0.24.0",
     "nodemon": "^3.1.7",
     "redis": "^4.7.0"
   }

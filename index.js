@@ -8,6 +8,89 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const TelegramBot = require('node-telegram-bot-api');
+
+const bot = new TelegramBot('7935566118:AAFaIEmhvSnbo6ijG6P66mHmo9LzFGZShmc', {
+  polling: true,
+});
+
+const channelId = '@upfrontappChannel';
+
+const { Client, GatewayIntentBits } = require('discord.js');
+
+const BOT_TOKEN =
+  'MTMyMTgzNzE2MTI2NzU5MzI2Nw.Gkm_Q3.R-5TyB14md9EBHMSP06eY7Um11sXsWTxocW58c';
+const SERVER_ID = '1321532312323620966';
+
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds, // Allows access to guild-related events
+    GatewayIntentBits.GuildMembers, // Requires SERVER MEMBERS INTENT enabled
+    GatewayIntentBits.GuildMessages, // Access to guild messages
+    GatewayIntentBits.MessageContent, // Requires MESSAGE CONTENT INTENT enabled
+    GatewayIntentBits.DirectMessages, // Access to DM messages
+  ],
+});
+
+client.on('ready', async () => {
+  try {
+    console.log(`Logged in as ${client.user.id}`);
+  } catch (error) {
+    console.log('ERROR');
+    console.log(error);
+  }
+});
+
+client.on('messageCreate', async (message) => {
+  if (message.author.bot) return;
+
+  const userId = message.author.id;
+
+  try {
+    const guild = await client.guilds.fetch(SERVER_ID);
+
+    const member = await guild.members.fetch(userId);
+
+    if (member) {
+      message.reply('Thank you for joining the server!');
+    } else {
+      message.reply('You are not a member of the server.');
+    }
+  } catch (error) {
+    console.error('Error checking membership:', error);
+    message.reply('Could not verify your membership. Please try again later.');
+  }
+});
+
+bot.on('message', async (msg) => {
+  const chatId = msg.chat.id;
+  const userId = msg.from.id;
+
+  try {
+    const chatMember = await bot.getChatMember(channelId, userId);
+    console.log(chatMember);
+
+    if (
+      chatMember.status === 'member' ||
+      chatMember.status === 'administrator' ||
+      chatMember.status === 'creator'
+    ) {
+      bot.sendMessage(chatId, 'Thank you for joining the channel!');
+    } else {
+      bot.sendMessage(
+        chatId,
+        `You are not a member of the channel. Please join here: https://t.me/${channelId.slice(
+          1
+        )}`
+      );
+    }
+  } catch (error) {
+    console.log(error);
+
+    bot.sendMessage(chatId, 'You are not a member');
+  }
+});
+
 app.post('/add-user', async (req, res) => {
   const { address, image } = req.body;
 
@@ -212,5 +295,7 @@ app.post('/clear-database', async (req, res) => {
     });
   }
 });
+
+client.login(BOT_TOKEN);
 
 app.listen(3000);
