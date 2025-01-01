@@ -56,8 +56,8 @@ export const getFiles = async ({ address }: { address: string }) => {
   return data;
 };
 
-export const getAllFiles = async () => {
-  const { data } = await axios.get('get-all-files');
+export const getAllFiles = async ({ address }: { address: string }) => {
+  const { data } = await axios.get('get-all-files', { params: { address } });
   return data as { data: File[] };
 };
 

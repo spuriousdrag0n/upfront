@@ -19,6 +19,7 @@ import { FaSearch } from 'react-icons/fa';
 import { LuBlocks } from 'react-icons/lu';
 import { IoCubeOutline } from 'react-icons/io5';
 import { useQuery } from '@tanstack/react-query';
+import { useAppKitAccount } from '@reown/appkit/react';
 import { FaBitcoin, FaSackDollar } from 'react-icons/fa6';
 
 import Item from '../components/Item';
@@ -44,9 +45,12 @@ const SECTORS_DATA = [
 ];
 
 const Market = () => {
+  const { address } = useAppKitAccount();
+
   const { data, isLoading } = useQuery({
     queryKey: ['get-all-files'],
-    queryFn: getAllFiles,
+    queryFn: () => getAllFiles({ address: address! }),
+    enabled: !!address,
   });
 
   return (
