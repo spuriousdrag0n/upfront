@@ -8,7 +8,7 @@ import { File } from '../types';
 import { ethers } from 'ethers';
 import { ABI } from '../constants/ABI';
 import { pinata } from '../utils/config';
-import { addPoints } from '../utils/http';
+import { addPoints, buyFile } from '../utils/http';
 import { BallTriangle } from 'react-loader-spinner';
 
 const CONTRACT_ADDRESS = '0x9e76aab5e4d17Ee17426954f8aFF11Bb569a64C2';
@@ -22,6 +22,17 @@ const Item = ({ price, userAddress, createdAt, ipfsHash, fileId }: File) => {
   const { mutate } = useMutation({
     mutationKey: ['add-points'],
     mutationFn: addPoints,
+  });
+
+  const { mutate: BuyFile } = useMutation({
+    mutationKey: ['buy-file'],
+    mutationFn: buyFile,
+    onSuccess: () => {
+      console.log('Buy file successfully');
+    },
+    onError: () => {
+      console.log('Buy file failed');
+    },
   });
 
   useEffect(() => {
@@ -59,7 +70,16 @@ const Item = ({ price, userAddress, createdAt, ipfsHash, fileId }: File) => {
     const tx = await contract.buyFile(fileId, { value: convertedPrice });
     const receipt = await tx.wait();
 
-    mutate({ address: address!, points: '100' });
+    if (receipt) {
+      mutate({ address: address!, points: '100' });
+      BuyFile({
+        fileId,
+        ipfsHash,
+        address: address!,
+        price: convertedPrice.toString(),
+        date: new Date().toLocaleString(),
+      });
+    }
 
     setIsLoading(false);
 
@@ -72,8 +92,9 @@ const Item = ({ price, userAddress, createdAt, ipfsHash, fileId }: File) => {
       {image && <img src={image} className="w-full h-28 rounded-md mb-5" />}
 
       <>
-        <p>Owner: {address === userAddress ? 'you are owner' : ''}</p>
+        <p>Owner: {address === userAddress ? 'you are owner' : userAddress}</p>
         <p>Created At: {new Date(createdAt).toLocaleDateString('en-US')}</p>
+        <p>File ID: {fileId}</p>
       </>
 
       <hr className="border border-gray-100 my-5" />

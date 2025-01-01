@@ -77,3 +77,28 @@ export const getPoints = async ({ address }: { address: string }) => {
 
   return data;
 };
+
+type BuyFile = {
+  fileId: string;
+  price: string;
+  date: string;
+  address: string;
+  ipfsHash: string;
+};
+
+export const buyFile = async ({ address, date, fileId, price }: BuyFile) => {
+  const { data } = await axios.post('buy-file', {
+    address,
+    date,
+    price,
+    fileId,
+  });
+
+  return data;
+};
+
+export const getBuiedFiles = async ({ address }) => {
+  const { data } = await axios.get(`buy-file/${address}`);
+
+  return data;
+};

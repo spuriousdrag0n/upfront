@@ -14,7 +14,7 @@ const DUMMY_CARD_DATA = [
   },
 ];
 
-import 'swiper/css';
+// import 'swiper/css';
 
 import { FiCpu } from 'react-icons/fi';
 import { FaSearch } from 'react-icons/fa';

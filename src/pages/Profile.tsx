@@ -52,7 +52,7 @@ const UNICHAIN_TESTNET_PARAMS = {
 const Profile = () => {
   const [price, setPrice] = useState('0');
   const [isPublic, setIsPublic] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const { address, isConnected } = useAppKitAccount();
   const [file, setFile] = useState<File | null>(null);
   const [contract, setContract] = useState<ethers.Contract | null>(null);
