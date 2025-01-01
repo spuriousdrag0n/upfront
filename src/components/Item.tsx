@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import CryptoJS from 'crypto-js';
 import { useMutation } from '@tanstack/react-query';
+import { BallTriangle } from 'react-loader-spinner';
 import { useAppKitAccount } from '@reown/appkit/react';
 
 import { File } from '../types';
@@ -9,9 +10,8 @@ import { ethers } from 'ethers';
 import { ABI } from '../constants/ABI';
 import { pinata } from '../utils/config';
 import { addPoints, buyFile } from '../utils/http';
-import { BallTriangle } from 'react-loader-spinner';
 
-const CONTRACT_ADDRESS = '0x9e76aab5e4d17Ee17426954f8aFF11Bb569a64C2';
+const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS as string;
 
 const Item = ({ price, userAddress, createdAt, ipfsHash, fileId }: File) => {
   const { address } = useAppKitAccount();
@@ -92,7 +92,7 @@ const Item = ({ price, userAddress, createdAt, ipfsHash, fileId }: File) => {
       {image && <img src={image} className="w-full h-28 rounded-md mb-5" />}
 
       <>
-        <p>Owner: {address === userAddress ? 'you are owner' : userAddress}</p>
+        <p>Owner: {address === userAddress ? 'you are owner' : ''}</p>
         <p>Created At: {new Date(createdAt).toLocaleDateString('en-US')}</p>
         <p>File ID: {fileId}</p>
       </>

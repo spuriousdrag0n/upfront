@@ -87,49 +87,6 @@ const Market = () => {
             ))}
           </ul>
         )}
-
-        {/* <Swiper
-          slidesPerView={1}
-          spaceBetween={50}
-          // onSlideChange={() => console.log('slide change')}
-          // onSwiper={(swiper) => console.log(swiper)}
-        >
-          {Array.from({ length: 4 }, (_, i) => i).map((i) => (
-            <SwiperSlide
-              key={i}
-              className="border border-gray-300 rounded-2xl p-5"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex gap-3 items-center">
-                  <FaBitcoin size={30} color="gold" />
-
-                  <p className="flex flex-col gap-1">
-                    <span className="font-semibold">Crypto</span>
-                    <span className="text-[#64748B]">10 Assets</span>
-                  </p>
-                </div>
-
-                <div>
-                  <p className="font-semibold">$20.300</p>
-                  <p className="text-[#1DCE5C]">0.24%</p>
-                </div>
-              </div>
-
-              <hr className="border border-gray-100 my-5" />
-
-              <div className="flex justify-between">
-                <div>
-                  <p className="text-[#64748B]">Profits</p>
-                  <p className="font-bold text-xl">$16,988</p>
-                </div>
-
-                <button className="bg-indigo-700 text-white rounded-xl px-7">
-                  Buy
-                </button>
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper> */}
       </section>
 
       <section className="w-[90%] mx-auto mt-5">
