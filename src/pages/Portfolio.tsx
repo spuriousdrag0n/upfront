@@ -1,47 +1,21 @@
-import { CiUser } from 'react-icons/ci';
 import { FaUser } from 'react-icons/fa6';
-import { TbNotes } from 'react-icons/tb';
 import { useQuery } from '@tanstack/react-query';
-import { PiUserListDuotone } from 'react-icons/pi';
-import { IoIosArrowForward } from 'react-icons/io';
 import { LoginButton } from '@telegram-auth/react';
 import { useAppKitAccount } from '@reown/appkit/react';
 
 import { getBuiedFiles } from '../utils/http';
 
-const DATA = [
-  {
-    title: 'Personal Details',
-    subTitle: 'Your account information',
-    Icon: CiUser,
-  },
-  {
-    title: 'Identify Verification',
-    subTitle: 'Your verification status',
-    Icon: PiUserListDuotone,
-  },
-  {
-    title: 'Transaction History',
-    subTitle: 'Your transaction details',
-    Icon: TbNotes,
-  },
-];
-
 const Portfolio = () => {
   const { address } = useAppKitAccount();
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['get-buied-files'],
     queryFn: () => getBuiedFiles({ address }),
     enabled: !!address,
   });
 
-  if (data) {
-    console.log(data);
-  }
-
   return (
-    <div>
+    <div className="h-screen">
       <section className="bg-[#6B39F4] h-[284px] flex justify-center items-center *:text-white">
         <div className="text-center">
           <div className="size-14 border border-gray-300 mx-auto rounded-full mb-4 flex justify-center items-center">
@@ -52,45 +26,36 @@ const Portfolio = () => {
           <p>email@gmail.com</p>
 
           <LoginButton
+            lang="en"
+            cornerRadius={5}
+            showAvatar={true}
+            buttonSize="large"
             botUsername={import.meta.env.VITE_BOT_USER_NAME}
             onAuthCallback={(data) => {
               console.log(data);
             }}
-            buttonSize="large" // "large" | "medium" | "small"
-            cornerRadius={5} // 0 - 20
-            showAvatar={true} // true | false
-            lang="en"
           />
         </div>
       </section>
 
-      <section className="w-[90%] mx-auto border border-gray-300 p-4 mt-10 rounded-xl">
-        <p>Invite your friends and win free asset up to $100</p>
-      </section>
-
       <section className="w-[90%] mx-auto mt-10 mb-10">
-        <h3 className="text-lg font-bold mb-2">Account Details</h3>
+        <h3 className="text-lg font-bold mb-2">Files you purchased</h3>
 
-        <ul className="space-y-8">
-          {DATA.map(({ subTitle, title, Icon }) => {
-            return (
-              <li
-                key={title}
-                className="border border-gray-300 rounded-xl flex justify-between items-center p-4"
-              >
-                <div className="flex gap-4 items-center">
-                  <Icon size={30} color="#64748B" />
+        {isLoading && <p>Loading ...</p>}
 
-                  <div className="flex flex-col">
-                    <p className="font-bold">{title}</p>
-                    <p className="text-[#64748B]">{subTitle}</p>
-                  </div>
-                </div>
-                <IoIosArrowForward color="#64748B" size={25} />
-              </li>
-            );
-          })}
-        </ul>
+        {data && (
+          <ul className="space-y-8">
+            {data.files.map(({ fileId, price, date }) => (
+              <>
+                <li className="border border-gray-300 rounded-2xl p-5 shadow-md transition duration-300 hover:shadow-indigo-200 hover:shadow-lg">
+                  <p>File Id: {fileId}</p>
+                  <p>purchased at: {date}</p>
+                  <p>Price: {price}</p>
+                </li>
+              </>
+            ))}
+          </ul>
+        )}
       </section>
     </div>
   );

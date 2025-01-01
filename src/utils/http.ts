@@ -100,5 +100,7 @@ export const buyFile = async ({ address, date, fileId, price }: BuyFile) => {
 export const getBuiedFiles = async ({ address }) => {
   const { data } = await axios.get(`buy-file/${address}`);
 
-  return data;
+  return data as {
+    files: { date: string; fileId: string; price: string; ipfsHash: string }[];
+  };
 };
