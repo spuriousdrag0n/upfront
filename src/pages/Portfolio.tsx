@@ -1,12 +1,13 @@
-import { FaUser } from 'react-icons/fa6';
-
 import { CiUser } from 'react-icons/ci';
+import { FaUser } from 'react-icons/fa6';
 import { TbNotes } from 'react-icons/tb';
+import { useQuery } from '@tanstack/react-query';
 import { PiUserListDuotone } from 'react-icons/pi';
 import { IoIosArrowForward } from 'react-icons/io';
-import { useQuery } from '@tanstack/react-query';
-import { getBuiedFiles } from '../utils/http';
+import { LoginButton } from '@telegram-auth/react';
 import { useAppKitAccount } from '@reown/appkit/react';
+
+import { getBuiedFiles } from '../utils/http';
 
 const DATA = [
   {
@@ -49,6 +50,17 @@ const Portfolio = () => {
 
           <h1>USER NAME</h1>
           <p>email@gmail.com</p>
+
+          <LoginButton
+            botUsername={import.meta.env.VITE_BOT_USER_NAME}
+            onAuthCallback={(data) => {
+              console.log(data);
+            }}
+            buttonSize="large" // "large" | "medium" | "small"
+            cornerRadius={5} // 0 - 20
+            showAvatar={true} // true | false
+            lang="en"
+          />
         </div>
       </section>
 
