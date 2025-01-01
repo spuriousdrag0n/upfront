@@ -24,11 +24,11 @@ const SERVER_ID = '1321532312323620966';
 
 const client = new Client({
   intents: [
-    GatewayIntentBits.Guilds, // Allows access to guild-related events
-    GatewayIntentBits.GuildMembers, // Requires SERVER MEMBERS INTENT enabled
-    GatewayIntentBits.GuildMessages, // Access to guild messages
-    GatewayIntentBits.MessageContent, // Requires MESSAGE CONTENT INTENT enabled
-    GatewayIntentBits.DirectMessages, // Access to DM messages
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.DirectMessages,
   ],
 });
 
@@ -165,10 +165,8 @@ app.get('/get-files/:address', async (req, res) => {
   try {
     const { address } = req.params;
 
-    // Get all IPFS entry IDs for this user
     const ipfsEntryIds = await redisClient.sMembers(`user:${address}:ipfs`);
 
-    // Get the details for each IPFS entry
     const ipfsEntries = await Promise.all(
       ipfsEntryIds.map(async (entryId) => {
         const data = await redisClient.hGetAll(entryId);
@@ -215,7 +213,6 @@ app.get('/get-all-files', async (req, res) => {
       allFiles = [...allFiles, ...ipfsEntries];
     }
 
-    // Sort files by createdAt (newest first)
     allFiles.sort((a, b) => b.createdAt - a.createdAt);
     res.json({
       success: true,
@@ -277,6 +274,49 @@ app.get('/get-points/:address', async (req, res) => {
       points: parseInt(points, 10),
     });
   } catch (error) {}
+});
+
+app.post('/buy-file', async (req, res) => {
+  const { fileId, price, date, address, ipfsHash } = req.body;
+
+  if (!fileId || !price || !date || !address) {
+    return res.status(400).json({
+      error: 'All fields are required: fileId, price, date, address',
+    });
+  }
+
+  try {
+    const userKey = `user:${address}:files`;
+    const fileData = { fileId, price, date, ipfsHash };
+    await redisClient.rPush(userKey, JSON.stringify(fileData));
+
+    return res.status(201).json({ message: 'Data saved successfully' });
+  } catch (error) {
+    console.error('Error saving file data:', error);
+    return res
+      .status(500)
+      .json({ error: 'An error occurred while saving file data.' });
+  }
+});
+
+app.get('/buy-file/:address', async (req, res) => {
+  const { address } = req.params;
+  if (!address) {
+    return res.status(400).json({ error: 'Address is required' });
+  }
+
+  try {
+    const userKey = `user:${address}:files`;
+    const files = await redisClient.lRange(userKey, 0, -1);
+
+    const parsedFiles = files.map((file) => JSON.parse(file));
+    return res.status(200).json({ files: parsedFiles });
+  } catch (error) {
+    console.error('Error retrieving files:', error);
+    return res
+      .status(500)
+      .json({ error: 'An error occurred while retrieving files.' });
+  }
 });
 
 app.post('/clear-database', async (req, res) => {
