@@ -207,44 +207,48 @@ const Profile = () => {
           </button>
         )}
 
-        <DragAndDrop file={file} onChange={setFile} />
-        <p className="text-center text-xl font-bold mt-3">Add media</p>
-        <p className="text-center  text-gray-600">Of any kind</p>
+        {isConnected && (
+          <>
+            <DragAndDrop file={file} onChange={setFile} />
+            <p className="text-center text-xl font-bold mt-3">Add media</p>
+            <p className="text-center  text-gray-600">Of any kind</p>
 
-        <hr className="h-[2px] w-full mt-8 mb-10" />
+            <hr className="h-[2px] w-full mt-8 mb-10" />
 
-        <div className="flex justify-center items-center gap-4 bg-gray-100 p-2 rounded-xl border border-indigo-400">
-          <input
-            min="0"
-            // step="1"
-            type="number"
-            placeholder="Enter a price"
-            className="outline-none rounded-lg px-3 py-1"
-            onChange={(e) => setPrice(e.currentTarget.value)}
-          />
+            <div className="flex justify-center items-center gap-4 bg-gray-100 p-2 rounded-xl border border-indigo-400">
+              <input
+                min="0"
+                // step="1"
+                type="number"
+                placeholder="Enter a price"
+                className="outline-none rounded-lg px-3 py-1"
+                onChange={(e) => setPrice(e.currentTarget.value)}
+              />
 
-          <label htmlFor="input">is Public</label>
-          <input
-            id="input"
-            type="checkbox"
-            onChange={(e) => setIsPublic(e.currentTarget.checked)}
-          />
-        </div>
+              <label htmlFor="input">is Public</label>
+              <input
+                id="input"
+                type="checkbox"
+                onChange={(e) => setIsPublic(e.currentTarget.checked)}
+              />
+            </div>
 
-        <button
-          disabled={isLoading}
-          onClick={createFileHandler}
-          className="bg-indigo-600 p-3 w-full rounded-2xl text-white flex justify-center my-12"
-        >
-          {isLoading ? (
-            <BallTriangle height={25} width={25} color="#fff" />
-          ) : (
-            'Create File'
-          )}
-        </button>
+            <button
+              disabled={isLoading}
+              onClick={createFileHandler}
+              className="bg-indigo-600 p-3 w-full rounded-2xl text-white flex justify-center my-12"
+            >
+              {isLoading ? (
+                <BallTriangle height={25} width={25} color="#fff" />
+              ) : (
+                'Create File'
+              )}
+            </button>
 
-        {isConnected && address && <p>{address}</p>}
-        {data && <p> Your Points : {data.points}</p>}
+            {isConnected && address && <p>{address}</p>}
+            {data && <p> Your Points : {data.points}</p>}
+          </>
+        )}
       </div>
     </div>
   );
