@@ -73,10 +73,10 @@ const Item = ({ price, userAddress, createdAt, ipfsHash, fileId }: File) => {
     if (receipt) {
       mutate({ address: address!, points: '100' });
       BuyFile({
+        price,
         fileId,
         ipfsHash,
         address: address!,
-        price: convertedPrice.toString(),
         date: new Date().toLocaleString(),
       });
     }

@@ -14,14 +14,11 @@ const DUMMY_CARD_DATA = [
   },
 ];
 
-// import 'swiper/css';
-
 import { FiCpu } from 'react-icons/fi';
 import { FaSearch } from 'react-icons/fa';
 import { LuBlocks } from 'react-icons/lu';
 import { IoCubeOutline } from 'react-icons/io5';
 import { useQuery } from '@tanstack/react-query';
-// import { Swiper, SwiperSlide } from 'swiper/react';
 import { FaBitcoin, FaSackDollar } from 'react-icons/fa6';
 
 import Item from '../components/Item';
