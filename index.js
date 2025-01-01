@@ -188,6 +188,14 @@ app.get('/get-files/:address', async (req, res) => {
 });
 
 app.get('/get-all-files', async (req, res) => {
+  const { address } = req.query;
+
+  if (!address) {
+    return res
+      .status(400)
+      .json({ success: false, message: 'Address is required' });
+  }
+
   try {
     const userSets = await redisClient.keys('user:*:ipfs');
     let allFiles = [];
@@ -213,11 +221,22 @@ app.get('/get-all-files', async (req, res) => {
       allFiles = [...allFiles, ...ipfsEntries];
     }
 
-    allFiles.sort((a, b) => b.createdAt - a.createdAt);
+    const purchasedFilesKey = `user:${address}:files`;
+    const purchasedFiles = await redisClient.lRange(purchasedFilesKey, 0, -1);
+
+    const purchasedFileIds = purchasedFiles.map(
+      (file) => JSON.parse(file).fileId
+    );
+
+    const filteredFiles = allFiles.filter(
+      (file) => !purchasedFileIds.includes(file.fileId)
+    );
+
+    filteredFiles.sort((a, b) => b.createdAt - a.createdAt);
     res.json({
       success: true,
-      total: allFiles.length,
-      data: allFiles,
+      total: filteredFiles.length,
+      data: filteredFiles,
     });
   } catch (error) {
     console.error('Error fetching all files:', error);
