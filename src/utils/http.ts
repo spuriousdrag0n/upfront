@@ -86,12 +86,19 @@ type BuyFile = {
   ipfsHash: string;
 };
 
-export const buyFile = async ({ address, date, fileId, price }: BuyFile) => {
+export const buyFile = async ({
+  address,
+  date,
+  fileId,
+  price,
+  ipfsHash,
+}: BuyFile) => {
   const { data } = await axios.post('buy-file', {
     address,
     date,
     price,
     fileId,
+    ipfsHash,
   });
 
   return data;

@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
 
-import CryptoJS from 'crypto-js';
+import { ethers } from 'ethers';
 import { useMutation } from '@tanstack/react-query';
 import { BallTriangle } from 'react-loader-spinner';
 import { useAppKitAccount } from '@reown/appkit/react';
 
 import { File } from '../types';
-import { ethers } from 'ethers';
+import { queryClient } from '../main';
 import { ABI } from '../constants/ABI';
-import { pinata } from '../utils/config';
 import { addPoints, buyFile } from '../utils/http';
+import { decryptImage } from '../utils/decryptImage';
 
 const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS as string;
 
@@ -29,6 +29,10 @@ const Item = ({ price, userAddress, createdAt, ipfsHash, fileId }: File) => {
     mutationFn: buyFile,
     onSuccess: () => {
       console.log('Buy file successfully');
+
+      queryClient.invalidateQueries({
+        queryKey: ['get-all-files', { address }],
+      });
     },
     onError: () => {
       console.log('Buy file failed');
@@ -36,22 +40,11 @@ const Item = ({ price, userAddress, createdAt, ipfsHash, fileId }: File) => {
   });
 
   useEffect(() => {
-    const getImage = async (ipfsHash: string) => {
-      const ipfsUrl = await pinata.gateways.convert(ipfsHash);
-
-      try {
-        const response = await fetch(ipfsUrl);
-        const encryptedData = await response.text();
-        const decrypted = CryptoJS.AES.decrypt(encryptedData, 'secret-key');
-        const decryptedUrl = decrypted.toString(CryptoJS.enc.Utf8);
-
-        setImage(decryptedUrl);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    getImage(ipfsHash);
+    if (ipfsHash) {
+      decryptImage(ipfsHash).then((url) => {
+        setImage(url!);
+      });
+    }
   }, [ipfsHash]);
 
   const buyHandler = async () => {

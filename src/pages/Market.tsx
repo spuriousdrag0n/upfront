@@ -48,7 +48,7 @@ const Market = () => {
   const { address } = useAppKitAccount();
 
   const { data, isLoading } = useQuery({
-    queryKey: ['get-all-files'],
+    queryKey: ['get-all-files', { address }],
     queryFn: () => getAllFiles({ address: address! }),
     enabled: !!address,
   });
