@@ -111,3 +111,20 @@ export const getBuiedFiles = async ({ address }) => {
     files: { date: string; fileId: string; price: string; ipfsHash: string }[];
   };
 };
+
+export const getVerifiedWithTelegram = async ({ address }) => {
+  const { data } = await axios.get('is-user-verified-with-telegram', {
+    params: { address },
+  });
+
+  return data as { address: string; success: boolean; isverified: boolean };
+};
+
+export const verifiedWithTelegram = async ({ address, userId }) => {
+  const { data } = await axios.post('is-user-verified-with-telegram', {
+    address,
+    userId,
+  });
+
+  return data as { address: string; success: boolean; message: string };
+};
