@@ -300,7 +300,7 @@ app.post('/buy-file', async (req, res) => {
 
   if (!fileId || !price || !date || !address) {
     return res.status(400).json({
-      error: 'All fields are required: fileId, price, date, address',
+      error: 'All fields are required: fileId, price, date, address, ipfsHash',
     });
   }
 
@@ -335,6 +335,78 @@ app.get('/buy-file/:address', async (req, res) => {
     return res
       .status(500)
       .json({ error: 'An error occurred while retrieving files.' });
+  }
+});
+
+app.get('/is-user-verified-with-telegram', async (req, res) => {
+  const { address } = req.query;
+
+  if (!address) {
+    return res.status(400).json({ message: 'address not found' });
+  }
+
+  try {
+    const key = `user:${address}:telegramVerified`;
+    const isVerified = await redisClient.get(key);
+    res.json({
+      address,
+      success: true,
+      isVerified: isVerified === 'true',
+    });
+  } catch (error) {
+    console.error('Error checking verification status:', error);
+
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message,
+    });
+  }
+});
+
+app.post('/is-user-verified-with-telegram', async (req, res) => {
+  const { address, userId } = req.body;
+
+  if (!address || !userId) {
+    return res.status(400).json({
+      success: false,
+      message: 'address and userId are required in the request body.',
+    });
+  }
+
+  try {
+    const chatMember = await bot.getChatMember(channelId, userId);
+
+    if (
+      chatMember.status === 'member' ||
+      chatMember.status === 'administrator' ||
+      chatMember.status === 'creator'
+    ) {
+      const key = `user:${address}:telegramVerified`;
+      await redisClient.set(key, 'true');
+
+      res.status(200).json({
+        address,
+        success: true,
+        message: 'User successfully verified.',
+      });
+    } else {
+      res.status(200).json({
+        address,
+        success: false,
+        message: `You are not a member of the channel. Please join here: https://t.me/${channelId.slice(
+          1
+        )}`,
+      });
+    }
+  } catch (error) {
+    console.error('Error verifying user:', error);
+
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message,
+    });
   }
 });
 
