@@ -4,8 +4,10 @@ import BottomMenu from '../components/BottomMenu';
 
 const Root = () => {
   return (
-    <main className="h-screen">
-      <Outlet />
+    <main className="min-h-screen">
+      <div className="pb-28">
+        <Outlet />
+      </div>
 
       <BottomMenu />
     </main>
