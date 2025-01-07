@@ -5,6 +5,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 
 import {
   addPoints,
+  getRating,
   getBuiedFiles,
   verifiedWithTelegram,
   getVerifiedWithTelegram,
@@ -18,6 +19,12 @@ const Portfolio = () => {
   const { data, isLoading } = useQuery({
     queryKey: ['get-buied-files', { address }],
     queryFn: () => getBuiedFiles({ address }),
+    enabled: !!address,
+  });
+
+  const { data: ratingData } = useQuery({
+    queryKey: ['get-rating'],
+    queryFn: () => getRating({ address }),
     enabled: !!address,
   });
 

@@ -128,3 +128,19 @@ export const verifiedWithTelegram = async ({ address, userId }) => {
 
   return data as { address: string; success: boolean; message: string };
 };
+
+export const addRating = async ({
+  address,
+  rating,
+}: {
+  address: string;
+  rating: number;
+}) => {
+  const { data } = await axios.post('rate', { address, rating });
+  return data;
+};
+
+export const getRating = async ({ address }) => {
+  const { data } = await axios.get(`rate/${address}`);
+  return data;
+};
