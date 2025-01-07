@@ -410,6 +410,47 @@ app.post('/is-user-verified-with-telegram', async (req, res) => {
   }
 });
 
+app.post('/rate', async (req, res) => {
+  const { rating, address } = req.body;
+
+  if (!address || !rating) {
+    return res.status(400).json({ error: 'Invalid request body' });
+  }
+
+  try {
+    const key = `ratings:${address}`;
+
+    const rating = JSON.parse(await redisClient.get(key)) || [];
+    rating.push(rating);
+    await redisClient.set(key, JSON.stringify(rating));
+
+    return res
+      .status(200)
+      .json({ message: 'Rating added successfully', rating });
+  } catch (error) {
+    console.error('Error adding rating:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get('/rate/:address', async (req, res) => {
+  const { address } = req.params;
+
+  if (!address) {
+    return res.status(400).json({ error: 'User address is required' });
+  }
+
+  try {
+    const key = `ratings:${address}`;
+    const ratings = JSON.parse(await redisClient.get(key)) || [];
+
+    return res.status(200).json({ ratings });
+  } catch (error) {
+    console.error('Error retrieving ratings:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 app.post('/clear-database', async (req, res) => {
   try {
     await redisClient.flushAll();
