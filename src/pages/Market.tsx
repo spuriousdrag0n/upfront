@@ -4,8 +4,10 @@ import { useAppKitAccount } from '@reown/appkit/react';
 
 import Item from '../components/Item';
 import { getAllFiles } from '../utils/http';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const Market = () => {
+  let content;
   const { address } = useAppKitAccount();
 
   const { data, isLoading } = useQuery({
@@ -13,6 +15,24 @@ const Market = () => {
     queryFn: () => getAllFiles({ address: address! }),
     enabled: !!address,
   });
+
+  if (isLoading) {
+    content = <Skeleton className="bg-gray-500" />;
+  }
+
+  if (data && data.data.length === 0) {
+    content = <p>There is no data </p>;
+  }
+
+  if (data && data.data.length > 0) {
+    content = (
+      <ul className="space-y-5">
+        {data.data.map((file) => (
+          <Item key={file.createdAt} {...file} />
+        ))}
+      </ul>
+    );
+  }
 
   return (
     <div className="pt-10">
@@ -31,15 +51,7 @@ const Market = () => {
           Files available for purchase
         </h3>
 
-        {isLoading && <p>Loading...</p>}
-
-        {data?.data && (
-          <ul className="space-y-5">
-            {data.data.map((file) => (
-              <Item key={file.createdAt} {...file} />
-            ))}
-          </ul>
-        )}
+        {content}
       </section>
     </div>
   );
