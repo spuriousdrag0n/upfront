@@ -90,8 +90,6 @@ const Item = ({ price, userAddress, createdAt, ipfsHash, fileId }: File) => {
 
   return (
     <li className="border border-gray-300 rounded-2xl p-5 shadow-md transition duration-300 hover:shadow-indigo-200 hover:shadow-lg">
-      {/* {!image && <div className="p-3 bg-gray-300 mb-5 animate-pulse" />} */}
-      {/* {image && <img src={image} className="w-full h-28 rounded-md mb-5" />} */}
       <img src={img} className="w-full h-28 rounded-md mb-5 blur-sm" />
 
       <>

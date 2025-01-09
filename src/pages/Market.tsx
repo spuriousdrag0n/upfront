@@ -27,7 +27,9 @@ const Market = () => {
       </div>
 
       <section className="mt-5 w-[90%] mx-auto">
-        <h3 className="text-2xl font-bold mb-5">Stock Futures</h3>
+        <h3 className="text-2xl font-bold mb-5">
+          Files available for purchase
+        </h3>
 
         {isLoading && <p>Loading...</p>}
 
