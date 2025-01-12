@@ -135,11 +135,13 @@ export const verifiedWithTelegram = async ({ address, userId }) => {
 export const addRating = async ({
   address,
   rating,
+  ratedBy,
 }: {
   address: string;
   rating: number;
+  ratedBy: string;
 }) => {
-  const { data } = await axios.post('rate', { address, rating });
+  const { data } = await axios.post('rate', { address, rating, ratedBy });
   return data;
 };
 

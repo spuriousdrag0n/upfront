@@ -6,6 +6,7 @@ type Props = {
     fileId: string;
     price: string;
     ipfsHash: string;
+    fileOwner: string;
   }[];
 };
 const PurchasedList = ({ files }: Props) => {
