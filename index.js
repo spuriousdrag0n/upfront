@@ -3,6 +3,12 @@ const redisClient = require('./redisClient'); // Import the Redis client
 const cors = require('cors');
 const express = require('express');
 
+const Redis = require('ioredis');
+
+const client_db = new Redis(
+  'rediss://default:AcNDAAIjcDE5ZDM1OGE1YjEyYjc0YWZiODllYmRmNGI5OTM3ZWZhMnAxMA@honest-snail-49987.upstash.io:6379'
+);
+
 const app = express();
 
 app.use(cors());
