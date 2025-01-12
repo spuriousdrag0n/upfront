@@ -4,7 +4,7 @@ import { useAppKitAccount } from '@reown/appkit/react';
 
 import Item from '../components/Item';
 import { getAllFiles } from '../utils/http';
-import { Skeleton } from '@/components/ui/skeleton';
+import SkeletonCard from '@/components/SkeletonCard';
 
 const Market = () => {
   let content;
@@ -17,7 +17,15 @@ const Market = () => {
   });
 
   if (isLoading) {
-    content = <Skeleton className="bg-gray-500" />;
+    content = (
+      <ul className="flex flex-col items-center justify-center gap-7">
+        {Array.from({ length: 4 }, (_, i) => (
+          <li key={i}>
+            <SkeletonCard key={i} />
+          </li>
+        ))}
+      </ul>
+    );
   }
 
   if (data && data.data.length === 0) {
