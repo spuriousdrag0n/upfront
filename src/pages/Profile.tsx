@@ -197,7 +197,7 @@ const Profile = () => {
 
   return (
     <div className="flex justify-center h-[88%]">
-      <div className=" pt-9">
+      <div className="pt-9 w-[90%]">
         <h1 className="text-center text-2xl font-bold mb-14">Up front</h1>
 
         {!isConnected && (
@@ -217,7 +217,7 @@ const Profile = () => {
 
             <hr className="h-[2px] w-full mt-8 mb-10" />
 
-            <div className="bg-gray-100 p-4 rounded-md">
+            <div className="bg-gray-100 p-4 rounded-md w-full">
               <p className="mb-5 space-y-3">
                 <Label htmlFor="price" className="text-xl">
                   Price:
