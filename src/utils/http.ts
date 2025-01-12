@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { File } from '../types';
+import { File, FurchasedFile } from '../types';
 
 axios.defaults.baseURL = 'http://localhost:3000/';
 
@@ -110,9 +110,7 @@ export const buyFile = async ({
 export const getBuiedFiles = async ({ address }) => {
   const { data } = await axios.get(`buy-file/${address}`);
 
-  return data as {
-    files: { date: string; fileId: string; price: string; ipfsHash: string }[];
-  };
+  return data as { files: FurchasedFile[] };
 };
 
 export const getVerifiedWithTelegram = async ({ address }) => {
