@@ -9,20 +9,30 @@ import {
   verifiedWithTelegram,
   getVerifiedWithTelegram,
 } from '../utils/http';
-import PurchasedItem from '../components/PurchasedItem';
+import { useToast } from '@/hooks/use-toast';
 import SkeletonCard from '@/components/SkeletonCard';
+import PurchasedItem from '../components/PurchasedItem';
 
 const Portfolio = () => {
   let list;
   let content;
 
+  const { toast } = useToast();
   const { address } = useAppKitAccount();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['get-buied-files', { address }],
     queryFn: () => getBuiedFiles({ address }),
     enabled: !!address,
   });
+
+  if (error) {
+    toast({
+      title: 'Error',
+      variant: 'destructive',
+      description: 'Connot fetch data',
+    });
+  }
 
   if (isLoading) {
     list = (

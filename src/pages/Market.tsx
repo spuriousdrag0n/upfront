@@ -4,17 +4,27 @@ import { useAppKitAccount } from '@reown/appkit/react';
 
 import Item from '../components/Item';
 import { getAllFiles } from '../utils/http';
+import { useToast } from '@/hooks/use-toast';
 import SkeletonCard from '@/components/SkeletonCard';
 
 const Market = () => {
   let content;
+  const { toast } = useToast();
   const { address } = useAppKitAccount();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['get-all-files', { address }],
     queryFn: () => getAllFiles({ address: address! }),
     enabled: !!address,
   });
+
+  if (error) {
+    toast({
+      title: 'Error',
+      variant: 'destructive',
+      description: 'Connot fetch data',
+    });
+  }
 
   if (isLoading) {
     content = (
