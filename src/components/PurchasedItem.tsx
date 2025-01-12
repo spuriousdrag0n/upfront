@@ -8,6 +8,8 @@ import { FurchasedFile } from '@/types';
 import { addRating } from '@/utils/http';
 import RatingDialog from './RatingDialog';
 import ReportDialog from './ReportDialog';
+import { errorToast } from '@/utils/errorToast';
+import { successToast } from '@/utils/successToast';
 import { decryptImage } from '../utils/decryptImage';
 
 type Props = FurchasedFile;
@@ -21,8 +23,14 @@ const PurchasedItem = ({ date, price, ipfsHash, fileOwner }: Props) => {
   const { mutate: addRatingMutation, isPending } = useMutation({
     mutationFn: addRating,
     onSuccess(data) {
+      successToast('Rating Successfully');
+
       console.log(data);
       setIsOpen(false);
+    },
+
+    onError: () => {
+      errorToast();
     },
   });
 
