@@ -148,11 +148,14 @@ app.post('/create-file', async (req, res) => {
       createdAt: Date.now(),
     };
 
-    await redisClient.sAdd(`user:${address}:ipfs`, ipfsEntryId);
+    // await redisClient.sAdd(`user:${address}:ipfs`, ipfsEntryId);
+
+    await client_db.sadd(`user:${address}:ipfs`, ipfsEntryId);
 
     const DATA = { ...ipfsData };
 
-    await redisClient.hSet(ipfsEntryId, 'data', JSON.stringify(DATA));
+    // await redisClient.hSet(ipfsEntryId, 'data', JSON.stringify(DATA));
+    await client_db.hset(ipfsEntryId, 'data', JSON.stringify(DATA));
 
     res.status(201).json({
       success: true,
@@ -171,11 +174,13 @@ app.get('/get-files/:address', async (req, res) => {
   try {
     const { address } = req.params;
 
-    const ipfsEntryIds = await redisClient.sMembers(`user:${address}:ipfs`);
+    // const ipfsEntryIds = await redisClient.sMembers(`user:${address}:ipfs`);
+    const ipfsEntryIds = await client_db.smembers(`user:${address}:ipfs`);
 
     const ipfsEntries = await Promise.all(
       ipfsEntryIds.map(async (entryId) => {
-        const data = await redisClient.hGetAll(entryId);
+        // const data = await redisClient.hGetAll(entryId);
+        const data = await client_db.hgetall(entryId);
         return {
           id: entryId,
           ...data,
@@ -203,15 +208,18 @@ app.get('/get-all-files', async (req, res) => {
   }
 
   try {
-    const userSets = await redisClient.keys('user:*:ipfs');
+    // const userSets = await redisClient.keys('user:*:ipfs');
+    const userSets = await client_db.keys('user:*:ipfs');
     let allFiles = [];
 
     for (const userSet of userSets) {
-      const ipfsEntryIds = await redisClient.sMembers(userSet);
+      // const ipfsEntryIds = await redisClient.sMembers(userSet);
+      const ipfsEntryIds = await client_db.smembers(userSet);
 
       const ipfsEntries = await Promise.all(
         ipfsEntryIds.map(async (entryId) => {
-          const data = await redisClient.hGetAll(entryId);
+          // const data = await redisClient.hGetAll(entryId);
+          const data = await client_db.hgetall(entryId);
 
           const DATA = JSON.parse(data.data);
           const userAddress = userSet.split(':')[1];
@@ -228,7 +236,8 @@ app.get('/get-all-files', async (req, res) => {
     }
 
     const purchasedFilesKey = `user:${address}:files`;
-    const purchasedFiles = await redisClient.lRange(purchasedFilesKey, 0, -1);
+    // const purchasedFiles = await redisClient.lRange(purchasedFilesKey, 0, -1);
+    const purchasedFiles = await client_db.lrange(purchasedFilesKey, 0, -1);
 
     const purchasedFileIds = purchasedFiles.map(
       (file) => JSON.parse(file).fileId
@@ -263,14 +272,16 @@ app.post('/add-points', async (req, res) => {
   }
 
   try {
-    const currectPoints = await redisClient.get(address);
+    // const currectPoints = await redisClient.get(address);
+    const currectPoints = await client_db.get(address);
     let updatedPoints = +points;
 
     if (currectPoints) {
       updatedPoints += parseInt(currectPoints, 10);
     }
 
-    await redisClient.set(address, updatedPoints);
+    await client_db.set(address, updatedPoints);
+    // await redisClient.set(address, updatedPoints);
 
     return res.status(200).json({
       message: 'Points updated successfully',
@@ -291,7 +302,8 @@ app.get('/get-points/:address', async (req, res) => {
   }
 
   try {
-    const points = (await redisClient.get(address)) || 0;
+    // const points = (await redisClient.get(address)) || 0;
+    const points = (await client_db.get(address)) || 0;
 
     return res.status(200).json({
       message: 'Points retrieved successfully!',
@@ -313,7 +325,9 @@ app.post('/buy-file', async (req, res) => {
   try {
     const userKey = `user:${address}:files`;
     const fileData = { fileId, price, date, ipfsHash };
-    await redisClient.rPush(userKey, JSON.stringify(fileData));
+
+    // await redisClient.rPush(userKey, JSON.stringify(fileData));
+    await client_db.rpush(userKey, JSON.stringify(fileData));
 
     return res.status(201).json({ message: 'Data saved successfully' });
   } catch (error) {
@@ -332,7 +346,8 @@ app.get('/buy-file/:address', async (req, res) => {
 
   try {
     const userKey = `user:${address}:files`;
-    const files = await redisClient.lRange(userKey, 0, -1);
+    // const files = await redisClient.lRange(userKey, 0, -1);
+    const files = await client_db.lrange(userKey, 0, -1);
 
     const parsedFiles = files.map((file) => JSON.parse(file));
     return res.status(200).json({ files: parsedFiles });
@@ -353,7 +368,9 @@ app.get('/is-user-verified-with-telegram', async (req, res) => {
 
   try {
     const key = `user:${address}:telegramVerified`;
-    const isVerified = await redisClient.get(key);
+    // const isVerified = await redisClient.get(key);
+    const isVerified = await client_db.get(key);
+
     res.json({
       address,
       success: true,
@@ -389,7 +406,8 @@ app.post('/is-user-verified-with-telegram', async (req, res) => {
       chatMember.status === 'creator'
     ) {
       const key = `user:${address}:telegramVerified`;
-      await redisClient.set(key, 'true');
+      // await redisClient.set(key, 'true');
+      await client_db.set(key, 'true');
 
       res.status(200).json({
         address,
@@ -426,9 +444,12 @@ app.post('/rate', async (req, res) => {
   try {
     const key = `ratings:${address}`;
 
-    const rating = JSON.parse(await redisClient.get(key)) || [];
+    // const rating = JSON.parse(await redisClient.get(key)) || [];
+    const rating = JSON.parse(await client_db.get(key)) || [];
+
     rating.push(rating);
-    await redisClient.set(key, JSON.stringify(rating));
+    // await redisClient.set(key, JSON.stringify(rating));
+    await client_db.set(key, JSON.stringify(rating));
 
     return res
       .status(200)
@@ -448,7 +469,8 @@ app.get('/rate/:address', async (req, res) => {
 
   try {
     const key = `ratings:${address}`;
-    const ratings = JSON.parse(await redisClient.get(key)) || [];
+    // const ratings = JSON.parse(await redisClient.get(key)) || [];
+    const ratings = JSON.parse(await client_db.get(key)) || [];
 
     return res.status(200).json({ ratings });
   } catch (error) {
