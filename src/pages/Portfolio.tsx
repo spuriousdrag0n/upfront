@@ -36,7 +36,7 @@ const Portfolio = () => {
 
   return (
     <>
-      <section className="bg-[#6B39F4] h-[284px] flex justify-center items-center *:text-white">
+      <section className="bg-primary h-[284px] flex justify-center items-center *:text-white">
         <TelegramLogin />
       </section>
 

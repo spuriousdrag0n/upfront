@@ -41,7 +41,9 @@ const TelegramLogin = () => {
 
       {verfiedWithTele && !verfiedWithTele.isverified && (
         <div className="flex flex-col justify-center items-center gap-5">
-          <p>Verified Your account with telegram to get 500 point</p>
+          <p className="text-xl px-6">
+            Verified Your account with telegram to get 500 point
+          </p>
 
           <LoginButton
             lang="en"
