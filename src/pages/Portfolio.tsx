@@ -10,30 +10,43 @@ import {
   getVerifiedWithTelegram,
 } from '../utils/http';
 import PurchasedItem from '../components/PurchasedItem';
-import {
-  SignedIn,
-  SignedOut,
-  UserButton,
-  SignInButton,
-  useUser,
-} from '@clerk/clerk-react';
-import DiscordButton from '@/components/DiscordButton';
+import SkeletonCard from '@/components/SkeletonCard';
 
 const Portfolio = () => {
+  let list;
   let content;
+
   const { address } = useAppKitAccount();
-
-  const { isSignedIn, isLoaded, user } = useUser();
-
-  console.log('Is Signed In : ', isSignedIn);
-  console.log('Is Loaded : ', isLoaded);
-  console.log('User : ', user);
 
   const { data, isLoading } = useQuery({
     queryKey: ['get-buied-files', { address }],
     queryFn: () => getBuiedFiles({ address }),
     enabled: !!address,
   });
+
+  if (isLoading) {
+    list = (
+      <ul className="flex flex-col justify-center items-center gap-6">
+        {Array.from({ length: 4 }, (_, i) => (
+          <li key={i}>
+            <SkeletonCard />
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
+  if (data) {
+    list = (
+      <ul className="space-y-8">
+        {data.files.map((file) => (
+          <PurchasedItem key={file.ipfsHash} {...file} />
+        ))}
+      </ul>
+    );
+  }
+
+  console.log(data);
 
   const { data: ratingData } = useQuery({
     queryKey: ['get-rating'],
@@ -59,7 +72,7 @@ const Portfolio = () => {
   const { mutate: addPointsMutation } = useMutation({
     mutationFn: addPoints,
     onSuccess: () => {
-      content = 'Thanks you will get 500 points';
+      content = 'Thanks, you will get 500 points';
     },
   });
 
@@ -71,7 +84,7 @@ const Portfolio = () => {
 
           {verfiedWithTele && !verfiedWithTele.isverified && (
             <div className="flex flex-col justify-center items-center gap-5">
-              <p>Verified Your account with telegram to get 1000 point</p>
+              <p>Verified Your account with telegram to get 500 point</p>
 
               <LoginButton
                 lang="en"
@@ -87,33 +100,13 @@ const Portfolio = () => {
               {content}
             </div>
           )}
-
-          <SignedOut>
-            <SignInButton mode="modal" forceRedirectUrl="http://127.0.0.1:5173">
-              <button>
-                <DiscordButton />
-              </button>
-            </SignInButton>
-          </SignedOut>
-
-          <SignedIn>
-            <UserButton />
-          </SignedIn>
         </div>
       </section>
 
       <section className="w-[90%] mx-auto mt-10 mb-5">
         <h3 className="text-lg font-bold mb-2">Files you purchased</h3>
 
-        {isLoading && <p>Loading ...</p>}
-
-        {data && (
-          <ul className="space-y-8">
-            {data.files.map((file) => (
-              <PurchasedItem key={file.ipfsHash} {...file} />
-            ))}
-          </ul>
-        )}
+        {list}
       </section>
     </>
   );
