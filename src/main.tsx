@@ -17,10 +17,10 @@ export const queryClient = new QueryClient();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
-      <QueryClientProvider client={queryClient}>
-        <App />
-      </QueryClientProvider>
-    </ClerkProvider>
+    {/* <ClerkProvider publishableKey={PUBLISHABLE_KEY}> */}
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>
+    {/* </ClerkProvider> */}
   </StrictMode>
 );
