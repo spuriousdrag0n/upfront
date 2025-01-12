@@ -21,7 +21,7 @@ const BottomMenu = () => {
           to={path}
           className={({ isActive }) =>
             isActive
-              ? 'text-indigo-500 font-bold flex flex-col items-center'
+              ? 'text-primary font-bold flex flex-col items-center'
               : 'flex flex-col items-center'
           }
         >

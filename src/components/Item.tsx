@@ -7,6 +7,7 @@ import { useAppKitAccount } from '@reown/appkit/react';
 
 import { File } from '../types';
 import img from '@/assets/img.webp';
+import { Button } from './ui/button';
 import { queryClient } from '../main';
 import { ABI } from '../constants/ABI';
 import { useToast } from '@/hooks/use-toast';
@@ -99,16 +100,13 @@ const Item = ({ price, userAddress, createdAt, ipfsHash, fileId }: File) => {
         </div>
 
         {userAddress !== address && (
-          <button
-            onClick={buyHandler}
-            className="bg-indigo-700 text-white rounded-xl px-7"
-          >
+          <Button onClick={buyHandler} className=" text-white rounded-xl px-7">
             {isLoading ? (
               <BallTriangle height={25} width={25} color="#fff" />
             ) : (
               'Buy'
             )}
-          </button>
+          </Button>
         )}
       </div>
     </li>
