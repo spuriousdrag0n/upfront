@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import CryptoJS from 'crypto-js';
 import { BallTriangle } from 'react-loader-spinner';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { EthersAdapter } from '@reown/appkit-adapter-ethers';
 import { createAppKit, useAppKitAccount } from '@reown/appkit/react';
 import { arbitrum, mainnet, unichainSepolia } from '@reown/appkit/networks';
@@ -16,7 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import DragAndDrop from '../components/DragAndDrop';
-import { addPoints, createFile, getPoints } from '../utils/http';
+import { addPoints, createFile } from '../utils/http';
 
 const projectId = '218f573f7987430400eac25d58a0ca68';
 
@@ -91,12 +91,6 @@ const Profile = () => {
 
       addPointsMutation({ address: address!, points: '50' });
     },
-  });
-
-  const { data } = useQuery({
-    queryKey: ['get-points', { address }],
-    queryFn: () => getPoints({ address: address! }),
-    enabled: !!address,
   });
 
   const handleConnect = async () => {
@@ -262,9 +256,6 @@ const Profile = () => {
                 )}
               </Button>
             </div>
-
-            {isConnected && address && <p>{address}</p>}
-            {data && <p> Your Points : {data.points}</p>}
           </>
         )}
       </div>
