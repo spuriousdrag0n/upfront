@@ -58,6 +58,14 @@ const Profile = () => {
   const [file, setFile] = useState<File | null>(null);
   const [contract, setContract] = useState<ethers.Contract | null>(null);
 
+  const { mutate: addPointsMutation } = useMutation({
+    mutationKey: ['add-points'],
+    mutationFn: addPoints,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['get-points', { address }] });
+    },
+  });
+
   const { mutate } = useMutation({
     mutationKey: ['create-file'],
     mutationFn: createFile,
@@ -68,14 +76,8 @@ const Profile = () => {
     onSuccess(data) {
       console.log('SUCCESS');
       console.log(data);
-    },
-  });
 
-  const { mutate: addPointsMutation } = useMutation({
-    mutationKey: ['add-points'],
-    mutationFn: addPoints,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['get-points', { address }] });
+      addPointsMutation({ address: address!, points: '50' });
     },
   });
 
@@ -163,18 +165,18 @@ const Profile = () => {
 
     console.log(tx);
 
-    mutate({
-      price,
-      ipfsHash,
-      isPublic,
-      address: address!,
-      contractHash: tx.hash,
-      fileId: fileId.toString(),
-    });
+    if (tx) {
+      mutate({
+        price,
+        ipfsHash,
+        isPublic,
+        address: address!,
+        contractHash: tx.hash,
+        fileId: fileId.toString(),
+      });
 
-    addPointsMutation({ address: address!, points: '50' });
-
-    setIsLoading(false);
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
