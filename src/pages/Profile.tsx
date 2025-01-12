@@ -253,7 +253,7 @@ const Profile = () => {
               <Button
                 disabled={isLoading}
                 onClick={createFileHandler}
-                className="p-3 w-full rounded-2xl text-white flex justify-center my-12 py-7 text-xl"
+                className="p-3 w-full rounded-2xl text-white flex justify-center mt-5 py-4 text-xl"
               >
                 {isLoading ? (
                   <BallTriangle height={25} width={25} color="#fff" />
