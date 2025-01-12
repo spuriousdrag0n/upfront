@@ -9,28 +9,18 @@ import { File } from '../types';
 import img from '@/assets/img.webp';
 import { queryClient } from '../main';
 import { ABI } from '../constants/ABI';
-import RatingDialog from './RatingDialog';
-import { addPoints, addRating, buyFile } from '../utils/http';
+import { addPoints, buyFile } from '../utils/http';
 
 const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS as string;
 
 const Item = ({ price, userAddress, createdAt, ipfsHash, fileId }: File) => {
   const { address } = useAppKitAccount();
 
-  const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const { mutate } = useMutation({
     mutationKey: ['add-points'],
     mutationFn: addPoints,
-  });
-
-  const { mutate: addRatingMutation } = useMutation({
-    mutationFn: addRating,
-    onSuccess(data) {
-      console.log(data);
-      setIsOpen(false);
-    },
   });
 
   const { mutate: BuyFile } = useMutation({
@@ -42,8 +32,6 @@ const Item = ({ price, userAddress, createdAt, ipfsHash, fileId }: File) => {
       queryClient.invalidateQueries({
         queryKey: ['get-all-files', { address }],
       });
-
-      setIsOpen(true);
     },
     onError: () => {
       console.log('Buy file failed');
@@ -73,6 +61,7 @@ const Item = ({ price, userAddress, createdAt, ipfsHash, fileId }: File) => {
         fileId,
         ipfsHash,
         address: address!,
+        fileOwner: userAddress,
         date: new Date().toLocaleString(),
       });
     }
@@ -82,22 +71,16 @@ const Item = ({ price, userAddress, createdAt, ipfsHash, fileId }: File) => {
     console.log('Transaction successful:', receipt);
   };
 
-  const ratingHandler = (rating: number) => {
-    console.log(rating * 2);
-
-    addRatingMutation({ address: userAddress, rating: rating * 2 });
-  };
-
   return (
     <li className="border border-gray-300 rounded-2xl p-5 shadow-md transition duration-300 hover:shadow-indigo-200 hover:shadow-lg">
       <img src={img} className="w-full h-28 rounded-md mb-5 blur-sm" />
 
       <>
-        <p onClick={() => setIsOpen(true)}>
+        {/* <p onClick={() => setIsOpen(true)}>
           Owner: {address === userAddress ? 'you are owner' : ''}
-        </p>
+        </p> */}
         <p>Created At: {new Date(createdAt).toLocaleDateString('en-US')}</p>
-        <p>File ID: {fileId}</p>
+        {/* <p>File ID: {fileId}</p> */}
       </>
 
       <hr className="border border-gray-100 my-5" />
@@ -121,8 +104,6 @@ const Item = ({ price, userAddress, createdAt, ipfsHash, fileId }: File) => {
           </button>
         )}
       </div>
-
-      {isOpen && <RatingDialog isOpen={isOpen} onSubmit={ratingHandler} />}
     </li>
   );
 };
