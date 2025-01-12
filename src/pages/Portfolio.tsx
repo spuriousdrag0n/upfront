@@ -1,3 +1,4 @@
+import { FaBitcoin } from 'react-icons/fa6';
 import { LoginButton } from '@telegram-auth/react';
 import { useAppKitAccount } from '@reown/appkit/react';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -10,11 +11,10 @@ import {
   getVerifiedWithTelegram,
 } from '../utils/http';
 import { useToast } from '@/hooks/use-toast';
-import SkeletonCard from '@/components/SkeletonCard';
-import PurchasedItem from '../components/PurchasedItem';
+import PurchasedList from '@/components/PurchasedList';
+import SkeletonList from '@/components/SkeletonList';
 
 const Portfolio = () => {
-  let list;
   let content;
 
   const { toast } = useToast();
@@ -32,28 +32,6 @@ const Portfolio = () => {
       variant: 'destructive',
       description: 'Connot fetch data',
     });
-  }
-
-  if (isLoading) {
-    list = (
-      <ul className="flex flex-col justify-center items-center gap-6">
-        {Array.from({ length: 4 }, (_, i) => (
-          <li key={i}>
-            <SkeletonCard />
-          </li>
-        ))}
-      </ul>
-    );
-  }
-
-  if (data) {
-    list = (
-      <ul className="space-y-8">
-        {data.files.map((file) => (
-          <PurchasedItem key={file.ipfsHash} {...file} />
-        ))}
-      </ul>
-    );
   }
 
   console.log(data);
@@ -116,7 +94,9 @@ const Portfolio = () => {
       <section className="w-[90%] mx-auto mt-10 mb-5">
         <h3 className="text-lg font-bold mb-2">Files you purchased</h3>
 
-        {list}
+        {isLoading && <SkeletonList />}
+
+        {data && <PurchasedList files={data.files} />}
       </section>
     </>
   );
