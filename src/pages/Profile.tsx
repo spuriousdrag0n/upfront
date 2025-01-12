@@ -11,6 +11,7 @@ import { arbitrum, mainnet, unichainSepolia } from '@reown/appkit/networks';
 import { queryClient } from '../main';
 import { ABI } from '../constants/ABI';
 import { pinata } from '../utils/config';
+import { Button } from '@/components/ui/button';
 import DragAndDrop from '../components/DragAndDrop';
 import { addPoints, createFile, getPoints } from '../utils/http';
 
@@ -233,17 +234,17 @@ const Profile = () => {
               />
             </div>
 
-            <button
+            <Button
               disabled={isLoading}
               onClick={createFileHandler}
-              className="bg-indigo-600 p-3 w-full rounded-2xl text-white flex justify-center my-12"
+              className="bg-indigo-600 p-3 w-full rounded-2xl text-white flex justify-center my-12 py-7 text-xl"
             >
               {isLoading ? (
                 <BallTriangle height={25} width={25} color="#fff" />
               ) : (
                 'Create File'
               )}
-            </button>
+            </Button>
 
             {isConnected && address && <p>{address}</p>}
             {data && <p> Your Points : {data.points}</p>}
