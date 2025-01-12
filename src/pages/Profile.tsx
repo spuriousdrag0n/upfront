@@ -11,6 +11,8 @@ import { arbitrum, mainnet, unichainSepolia } from '@reown/appkit/networks';
 import { queryClient } from '../main';
 import { ABI } from '../constants/ABI';
 import { pinata } from '../utils/config';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import DragAndDrop from '../components/DragAndDrop';
 import { addPoints, createFile, getPoints } from '../utils/http';
@@ -35,8 +37,7 @@ const appKit = createAppKit({
 const CONTRACT_ADDRESS = '0x9e76aab5e4d17Ee17426954f8aFF11Bb569a64C2';
 
 const UNICHAIN_TESTNET_PARAMS = {
-  // chainId: '0x1B', // 27 in hexadecimal
-  chainId: '0x515', // 27 in hexadecimal
+  chainId: '0x515',
   chainName: 'UNI Smart Chain Testnet',
   nativeCurrency: {
     name: 'ETH',
@@ -46,8 +47,8 @@ const UNICHAIN_TESTNET_PARAMS = {
   rpcUrls: ['https://sepolia.unichain.org/'],
   blockExplorerUrls: ['https://sepolia.uniscan.xyz/'],
 
-  iconUrls: [], // Add network logo URLs if available
-  networkId: '0x515', // Should match chainId
+  iconUrls: [],
+  networkId: '0x515',
 };
 
 const Profile = () => {
@@ -186,9 +187,6 @@ const Profile = () => {
       const signer = await provider.getSigner();
       await switchToUnichainTestnet();
 
-      const { name } = await provider.getNetwork();
-      console.log('NETWORK NAME : ', name);
-
       const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
       setContract(contract);
     };
@@ -218,35 +216,45 @@ const Profile = () => {
 
             <hr className="h-[2px] w-full mt-8 mb-10" />
 
-            <div className="flex justify-center items-center gap-4 bg-gray-100 p-2 rounded-xl border border-indigo-400">
-              <input
-                min="0"
-                // step="1"
-                type="number"
-                placeholder="Enter a price"
-                className="outline-none rounded-lg px-3 py-1"
-                onChange={(e) => setPrice(e.currentTarget.value)}
-              />
+            <div className="bg-gray-100 p-4 rounded-md">
+              <p className="mb-5 space-y-3">
+                <Label htmlFor="price" className="text-xl">
+                  Price:
+                </Label>
 
-              <label htmlFor="input">is Public</label>
-              <input
-                id="input"
-                type="checkbox"
-                onChange={(e) => setIsPublic(e.currentTarget.checked)}
-              />
+                <Input
+                  id="price"
+                  type="number"
+                  className="border border-primary"
+                  onChange={(e) => setPrice(e.currentTarget.value)}
+                />
+              </p>
+
+              <p className="flex gap-3 items-center">
+                <Label htmlFor="ispublic" className="text-xl">
+                  Is Public :
+                </Label>
+
+                <Input
+                  id="ispublic"
+                  type="checkbox"
+                  className="w-fit size-4"
+                  onChange={(e) => setIsPublic(e.currentTarget.checked)}
+                />
+              </p>
+
+              <Button
+                disabled={isLoading}
+                onClick={createFileHandler}
+                className="p-3 w-full rounded-2xl text-white flex justify-center my-12 py-7 text-xl"
+              >
+                {isLoading ? (
+                  <BallTriangle height={25} width={25} color="#fff" />
+                ) : (
+                  'Create File'
+                )}
+              </Button>
             </div>
-
-            <Button
-              disabled={isLoading}
-              onClick={createFileHandler}
-              className="bg-indigo-600 p-3 w-full rounded-2xl text-white flex justify-center my-12 py-7 text-xl"
-            >
-              {isLoading ? (
-                <BallTriangle height={25} width={25} color="#fff" />
-              ) : (
-                'Create File'
-              )}
-            </Button>
 
             {isConnected && address && <p>{address}</p>}
             {data && <p> Your Points : {data.points}</p>}
