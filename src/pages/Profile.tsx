@@ -11,6 +11,7 @@ import { arbitrum, mainnet, unichainSepolia } from '@reown/appkit/networks';
 import { queryClient } from '../main';
 import { ABI } from '../constants/ABI';
 import { pinata } from '../utils/config';
+import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -52,6 +53,8 @@ const UNICHAIN_TESTNET_PARAMS = {
 };
 
 const Profile = () => {
+  const { toast } = useToast();
+
   const [price, setPrice] = useState('0');
   const [isPublic, setIsPublic] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -70,13 +73,21 @@ const Profile = () => {
   const { mutate } = useMutation({
     mutationKey: ['create-file'],
     mutationFn: createFile,
-    onError(error) {
-      console.log('ERROR : ', error);
+    onError() {
+      toast({
+        title: 'Error',
+        variant: 'destructive',
+        description: 'Something went wrong!',
+      });
     },
 
-    onSuccess(data) {
-      console.log('SUCCESS');
-      console.log(data);
+    onSuccess() {
+      toast({
+        title: 'Success',
+        variant: 'default',
+        className: 'bg-green-500 text-xl text-white',
+        description: 'Create File Successfully',
+      });
 
       addPointsMutation({ address: address!, points: '50' });
     },
@@ -147,24 +158,19 @@ const Profile = () => {
   };
 
   const createFileHandler = async () => {
-    if (!file || !contract) return;
+    if (!file || !contract || price === '0') return;
 
     setIsLoading(true);
 
     const encryptedFile = await encryptImage(file);
     const ipfsHash = await uploadHandler(encryptedFile as string);
-    console.log('IPFS HASH : ', ipfsHash);
     const fileId = BigInt(Date.now());
-    console.log('FILE ID : ', fileId);
-    console.log('PRICE : ', ethers.parseEther(price));
 
     const tx = await contract.createFile(
       fileId,
       ethers.parseEther(price),
       false // CHECK LATER
     );
-
-    console.log(tx);
 
     if (tx) {
       mutate({
@@ -182,7 +188,8 @@ const Profile = () => {
 
   useEffect(() => {
     const connectContract = async () => {
-      if (!isConnected) return;
+      if (!isConnected || !window.ethereum) return;
+
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
       await switchToUnichainTestnet();

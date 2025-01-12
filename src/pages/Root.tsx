@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router';
 
+import { Toaster } from '@/components/ui/toaster';
 import BottomMenu from '../components/BottomMenu';
 
 const Root = () => {
@@ -8,7 +9,7 @@ const Root = () => {
       <div className="pb-28">
         <Outlet />
       </div>
-
+      <Toaster />
       <BottomMenu />
     </main>
   );
