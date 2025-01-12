@@ -1,4 +1,3 @@
-import { FaUser } from 'react-icons/fa6';
 import { LoginButton } from '@telegram-auth/react';
 import { useAppKitAccount } from '@reown/appkit/react';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -11,10 +10,24 @@ import {
   getVerifiedWithTelegram,
 } from '../utils/http';
 import PurchasedItem from '../components/PurchasedItem';
+import {
+  SignedIn,
+  SignedOut,
+  UserButton,
+  SignInButton,
+  useUser,
+} from '@clerk/clerk-react';
+import DiscordButton from '@/components/DiscordButton';
 
 const Portfolio = () => {
   let content;
   const { address } = useAppKitAccount();
+
+  const { isSignedIn, isLoaded, user } = useUser();
+
+  console.log('Is Signed In : ', isSignedIn);
+  console.log('Is Loaded : ', isLoaded);
+  console.log('User : ', user);
 
   const { data, isLoading } = useQuery({
     queryKey: ['get-buied-files', { address }],
@@ -54,13 +67,6 @@ const Portfolio = () => {
     <>
       <section className="bg-[#6B39F4] h-[284px] flex justify-center items-center *:text-white">
         <div className="text-center">
-          <div className="size-14 border border-gray-300 mx-auto rounded-full mb-4 flex justify-center items-center">
-            <FaUser size={35} />
-          </div>
-
-          <h1>USER NAME</h1>
-          <p>email@gmail.com</p>
-
           {isVerfiedWithTele && <p>Loading...</p>}
 
           {verfiedWithTele && !verfiedWithTele.isverified && (
@@ -81,6 +87,18 @@ const Portfolio = () => {
               {content}
             </div>
           )}
+
+          <SignedOut>
+            <SignInButton mode="modal" forceRedirectUrl="http://127.0.0.1:5173">
+              <button>
+                <DiscordButton />
+              </button>
+            </SignInButton>
+          </SignedOut>
+
+          <SignedIn>
+            <UserButton />
+          </SignedIn>
         </div>
       </section>
 
