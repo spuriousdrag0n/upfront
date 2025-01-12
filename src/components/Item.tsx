@@ -9,11 +9,14 @@ import { File } from '../types';
 import img from '@/assets/img.webp';
 import { queryClient } from '../main';
 import { ABI } from '../constants/ABI';
+import { useToast } from '@/hooks/use-toast';
 import { addPoints, buyFile } from '../utils/http';
 
 const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS as string;
 
 const Item = ({ price, userAddress, createdAt, ipfsHash, fileId }: File) => {
+  const { toast } = useToast();
+
   const { address } = useAppKitAccount();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -27,14 +30,23 @@ const Item = ({ price, userAddress, createdAt, ipfsHash, fileId }: File) => {
     mutationKey: ['buy-file'],
     mutationFn: buyFile,
     onSuccess: () => {
-      console.log('Buy file successfully');
+      toast({
+        title: 'Success',
+        variant: 'default',
+        description: 'Buy File Successfully',
+        className: 'bg-green-500 text-xl text-white',
+      });
 
       queryClient.invalidateQueries({
         queryKey: ['get-all-files', { address }],
       });
     },
     onError: () => {
-      console.log('Buy file failed');
+      toast({
+        title: 'Error',
+        variant: 'destructive',
+        description: 'Something went wrong!',
+      });
     },
   });
 
@@ -47,9 +59,6 @@ const Item = ({ price, userAddress, createdAt, ipfsHash, fileId }: File) => {
     const signer = await provider.getSigner();
     const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
     const convertedPrice = ethers.parseEther(price);
-
-    console.log('File ID : ', fileId);
-    console.log('Converted Price : ', convertedPrice);
 
     const tx = await contract.buyFile(fileId, { value: convertedPrice });
     const receipt = await tx.wait();
@@ -67,8 +76,6 @@ const Item = ({ price, userAddress, createdAt, ipfsHash, fileId }: File) => {
     }
 
     setIsLoading(false);
-
-    console.log('Transaction successful:', receipt);
   };
 
   return (
