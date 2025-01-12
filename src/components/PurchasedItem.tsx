@@ -1,21 +1,16 @@
 import { useEffect, useState } from 'react';
 
 import { useMutation } from '@tanstack/react-query';
+import { useAppKitAccount } from '@reown/appkit/react';
 
 import { Button } from './ui/button';
+import { FurchasedFile } from '@/types';
 import { addRating } from '@/utils/http';
 import RatingDialog from './RatingDialog';
 import ReportDialog from './ReportDialog';
 import { decryptImage } from '../utils/decryptImage';
-import { useAppKitAccount } from '@reown/appkit/react';
 
-type Props = {
-  fileId: string;
-  date: string;
-  price: string;
-  ipfsHash: string;
-  fileOwner: string;
-};
+type Props = FurchasedFile;
 
 const PurchasedItem = ({ date, price, ipfsHash, fileOwner }: Props) => {
   const { address } = useAppKitAccount();

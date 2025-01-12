@@ -1,13 +1,8 @@
+import { FurchasedFile } from '@/types';
 import PurchasedItem from './PurchasedItem';
 
 type Props = {
-  files: {
-    date: string;
-    fileId: string;
-    price: string;
-    ipfsHash: string;
-    fileOwner: string;
-  }[];
+  files: FurchasedFile[];
 };
 const PurchasedList = ({ files }: Props) => {
   return (

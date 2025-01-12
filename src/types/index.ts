@@ -8,3 +8,11 @@ export type File = {
   userAddress: string;
   contractHash: string;
 };
+
+export type FurchasedFile = {
+  date: string;
+  fileId: string;
+  price: string;
+  ipfsHash: string;
+  fileOwner: string;
+};
