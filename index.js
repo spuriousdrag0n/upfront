@@ -40,6 +40,8 @@ const client = new Client({
 
 client.on('ready', async () => {
   try {
+    console.log('USER NAME : ', client.user.displayName);
+
     console.log(`Logged in as ${client.user.id}`);
   } catch (error) {
     console.log('ERROR');
@@ -51,6 +53,8 @@ client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
 
   const userId = message.author.id;
+
+  console.log('USER ID : ', userId);
 
   try {
     const guild = await client.guilds.fetch(SERVER_ID);
@@ -314,17 +318,18 @@ app.get('/get-points/:address', async (req, res) => {
 });
 
 app.post('/buy-file', async (req, res) => {
-  const { fileId, price, date, address, ipfsHash } = req.body;
+  const { fileId, price, date, address, ipfsHash, fileOwner } = req.body;
 
-  if (!fileId || !price || !date || !address) {
+  if (!fileId || !price || !date || !address || !fileOwner) {
     return res.status(400).json({
-      error: 'All fields are required: fileId, price, date, address, ipfsHash',
+      error:
+        'All fields are required: fileId, price, date, address, ipfsHash, fileOwner',
     });
   }
 
   try {
     const userKey = `user:${address}:files`;
-    const fileData = { fileId, price, date, ipfsHash };
+    const fileData = { fileId, price, date, ipfsHash, fileOwner };
 
     // await redisClient.rPush(userKey, JSON.stringify(fileData));
     await client_db.rpush(userKey, JSON.stringify(fileData));
@@ -435,27 +440,46 @@ app.post('/is-user-verified-with-telegram', async (req, res) => {
 });
 
 app.post('/rate', async (req, res) => {
-  const { rating, address } = req.body;
+  const { rating, address, ratedBy } = req.body;
 
-  if (!address || !rating) {
+  if (!address || !rating || !ratedBy) {
     return res.status(400).json({ error: 'Invalid request body' });
   }
 
   try {
     const key = `ratings:${address}`;
 
-    // const rating = JSON.parse(await redisClient.get(key)) || [];
-    const rating = JSON.parse(await client_db.get(key)) || [];
+    const ratings = JSON.parse(await client_db.get(key)) || [];
 
-    rating.push(rating);
-    // await redisClient.set(key, JSON.stringify(rating));
-    await client_db.set(key, JSON.stringify(rating));
+    ratings.push({ rating, ratedBy });
+    await client_db.set(key, JSON.stringify(ratings));
 
     return res
       .status(200)
       .json({ message: 'Rating added successfully', rating });
   } catch (error) {
     console.error('Error adding rating:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post('/report', async (req, res) => {
+  const { message, repoter, address } = req.body;
+
+  if (!address || !repoter || !message) {
+    return res.status(400).json({ error: 'Invalid request body' });
+  }
+
+  try {
+    const key = `reports:${address}`;
+    const reports = JSON.parse(await client_db.get(key)) || [];
+
+    reports.push({ message, repoter });
+    await client_db.set(key, JSON.stringify(reports));
+
+    return res.status(200).json({ message: 'Report successfully' });
+  } catch (error) {
+    console.error('Error adding report:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -473,6 +497,24 @@ app.get('/rate/:address', async (req, res) => {
     const ratings = JSON.parse(await client_db.get(key)) || [];
 
     return res.status(200).json({ ratings });
+  } catch (error) {
+    console.error('Error retrieving ratings:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+app.get('/report/:address', async (req, res) => {
+  const { address } = req.params;
+
+  if (!address) {
+    return res.status(400).json({ error: 'User address is required' });
+  }
+
+  try {
+    const key = `reports:${address}`;
+    // const ratings = JSON.parse(await redisClient.get(key)) || [];
+    const reports = JSON.parse(await client_db.get(key)) || [];
+
+    return res.status(200).json({ reports });
   } catch (error) {
     console.error('Error retrieving ratings:', error);
     return res.status(500).json({ error: 'Internal server error' });
