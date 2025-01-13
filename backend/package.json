@@ -1,0 +1,22 @@
+{
+  "name": "web-3",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@redis/client": "^1.6.0",
+    "cors": "^2.8.5",
+    "discord.js": "^14.16.3",
+    "express": "^4.21.1",
+    "ioredis": "^5.4.2",
+    "node-telegram-bot-api": "^0.24.0",
+    "nodemon": "^3.1.7",
+    "redis": "^4.7.0"
+  }
+}
