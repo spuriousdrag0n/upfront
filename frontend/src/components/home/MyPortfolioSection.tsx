@@ -1,7 +1,5 @@
 import { Swiper, SwiperSlide } from 'swiper/react';
 
-import 'swiper/css';
-
 import { FaBitcoin } from 'react-icons/fa6';
 
 const MyPortfolioSection = () => {

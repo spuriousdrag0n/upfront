@@ -19,7 +19,7 @@ const Portfolio = () => {
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['get-buied-files', { address }],
-    queryFn: () => getBuiedFiles({ address }),
+    queryFn: () => getBuiedFiles({ address: address! }),
     enabled: !!address,
   });
 
@@ -35,7 +35,7 @@ const Portfolio = () => {
 
   const { data: ratingData } = useQuery({
     queryKey: ['get-rating'],
-    queryFn: () => getRating({ address }),
+    queryFn: () => getRating({ address: address! }),
     enabled: !!address,
   });
 
