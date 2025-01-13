@@ -107,13 +107,17 @@ export const buyFile = async ({
   return data;
 };
 
-export const getBuiedFiles = async ({ address }) => {
+export const getBuiedFiles = async ({ address }: { address: string }) => {
   const { data } = await axios.get(`buy-file/${address}`);
 
   return data as { files: FurchasedFile[] };
 };
 
-export const getVerifiedWithTelegram = async ({ address }) => {
+export const getVerifiedWithTelegram = async ({
+  address,
+}: {
+  address: string;
+}) => {
   const { data } = await axios.get('is-user-verified-with-telegram', {
     params: { address },
   });
@@ -121,7 +125,13 @@ export const getVerifiedWithTelegram = async ({ address }) => {
   return data as { address: string; success: boolean; isverified: boolean };
 };
 
-export const verifiedWithTelegram = async ({ address, userId }) => {
+export const verifiedWithTelegram = async ({
+  address,
+  userId,
+}: {
+  address: string;
+  userId: number;
+}) => {
   const { data } = await axios.post('is-user-verified-with-telegram', {
     address,
     userId,
@@ -143,7 +153,7 @@ export const addRating = async ({
   return data;
 };
 
-export const getRating = async ({ address }) => {
+export const getRating = async ({ address }: { address: string }) => {
   const { data } = await axios.get(`rate/${address}`);
   return data;
 };
