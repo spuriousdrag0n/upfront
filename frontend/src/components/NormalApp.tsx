@@ -18,6 +18,7 @@ const NormalApp = () => {
       console.log('MetaMask not installed; using read-only defaults');
       provider = ethers.getDefaultProvider();
     } else {
+      // @ts-ignore
       provider = new ethers.BrowserProvider(window.ethereum);
 
       signer = await provider.getSigner();

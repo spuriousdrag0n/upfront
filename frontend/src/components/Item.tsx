@@ -56,6 +56,7 @@ const Item = ({ price, userAddress, createdAt, ipfsHash, fileId }: File) => {
 
     setIsLoading(true);
 
+    // @ts-ignore
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
     const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);

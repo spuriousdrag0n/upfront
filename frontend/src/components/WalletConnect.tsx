@@ -75,13 +75,13 @@ const WalletConnect = () => {
   }, [data]);
 
   const getBalance = async () => {
-    if (!isConnected) {
+    if (!isConnected || !address) {
       console.log('No connection');
       return;
     }
-
+    // @ts-ignore
     const provider = new ethers.BrowserProvider(window.ethereum);
-    const balance = await provider.getBalance(address);
+    const balance = await provider.getBalance(address!);
 
     setBalance(formatUnits(balance, 18));
   };
