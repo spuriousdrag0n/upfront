@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,18 +7,22 @@ import {
   AlertDialogTitle,
   AlertDialogDescription,
 } from '@/components/ui/alert-dialog';
-
-import { FaRegStar } from 'react-icons/fa';
+import { Textarea } from './ui/textarea';
+import { useState } from 'react';
 
 type Props = {
   isOpen: boolean;
   isPending: boolean;
   onClose: () => void;
-  onSubmit: (value: number) => void;
+  onSubmit: (value: string) => void;
 };
 
-const RatingDialog = ({ isOpen, onSubmit, onClose, isPending }: Props) => {
-  const [rating, setRating] = useState(0);
+const ReportDialog = ({ isOpen, isPending, onClose, onSubmit }: Props) => {
+  const [message, setMessage] = useState('');
+
+  const changeHandler = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setMessage(e.currentTarget.value);
+  };
 
   return (
     <div onClick={onClose}>
@@ -30,27 +32,24 @@ const RatingDialog = ({ isOpen, onSubmit, onClose, isPending }: Props) => {
           className="w-[90%] rounded-lg border border-primary"
         >
           <AlertDialogHeader>
-            <AlertDialogTitle>Rating</AlertDialogTitle>
+            <AlertDialogTitle>
+              You're previous rated was low, so tell us what's a problem
+            </AlertDialogTitle>
             <AlertDialogDescription className="flex justify-center gap-6">
-              {Array.from({ length: 5 }, (_, n) => (
-                <FaRegStar
-                  key={n}
-                  className="size-8"
-                  onClick={() => setRating(n + 1)}
-                  style={{ color: rating >= n + 1 ? 'gold' : 'gray' }}
-                />
-              ))}
+              <Textarea
+                value={message}
+                onChange={changeHandler}
+                placeholder="Type you're message"
+              />
             </AlertDialogDescription>
           </AlertDialogHeader>
 
           <AlertDialogFooter>
-            {/* <AlertDialogCancel className="hidden">Cancel</AlertDialogCancel> */}
-
             <AlertDialogAction
               disabled={isPending}
-              onClick={onSubmit.bind(this, rating)}
+              onClick={onSubmit.bind(this, message)}
             >
-              {isPending ? 'Loading...' : 'Continue'}
+              {isPending ? 'Loading...' : 'Report'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -59,4 +58,4 @@ const RatingDialog = ({ isOpen, onSubmit, onClose, isPending }: Props) => {
   );
 };
 
-export default RatingDialog;
+export default ReportDialog;

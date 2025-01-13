@@ -5,10 +5,10 @@ import { useAppKitAccount } from '@reown/appkit/react';
 
 import { Button } from './ui/button';
 import { FurchasedFile } from '@/types';
-import { addRating } from '@/utils/http';
 import RatingDialog from './RatingDialog';
 import ReportDialog from './ReportDialog';
 import { errorToast } from '@/utils/errorToast';
+import { addRating, addReport } from '@/utils/http';
 import { successToast } from '@/utils/successToast';
 import { decryptImage } from '../utils/decryptImage';
 
@@ -18,17 +18,29 @@ const PurchasedItem = ({ date, price, ipfsHash, fileOwner }: Props) => {
   const { address } = useAppKitAccount();
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isReportOpen, setIsReportOpen] = useState(false);
   const [image, setImage] = useState<string | null>(null);
 
   const { mutate: addRatingMutation, isPending } = useMutation({
     mutationFn: addRating,
-    onSuccess(data) {
-      successToast('Rating Successfully');
+    onSuccess({ rating }) {
+      successToast('Rarting successfully');
 
-      console.log(data);
+      if (rating <= 4) setIsReportOpen(true);
       setIsOpen(false);
     },
+    onError: () => {
+      errorToast();
+    },
+  });
 
+  const { mutate: report, isPending: isReportMutation } = useMutation({
+    mutationKey: ['add-report'],
+    mutationFn: addReport,
+    onSuccess: () => {
+      setIsReportOpen(false);
+      successToast('Report successfully');
+    },
     onError: () => {
       errorToast();
     },
@@ -50,8 +62,16 @@ const PurchasedItem = ({ date, price, ipfsHash, fileOwner }: Props) => {
     });
   };
 
+  const reportHandler = (message: string) => {
+    report({ message, address: fileOwner, repoter: address! });
+  };
+
   const closeHandler = () => {
     setIsOpen(false);
+  };
+
+  const closeReportHandler = () => {
+    setIsReportOpen(false);
   };
 
   return (
@@ -76,7 +96,12 @@ const PurchasedItem = ({ date, price, ipfsHash, fileOwner }: Props) => {
         onSubmit={ratingHandler}
       />
 
-      <ReportDialog />
+      <ReportDialog
+        isOpen={isReportOpen}
+        onSubmit={reportHandler}
+        isPending={isReportMutation}
+        onClose={closeReportHandler}
+      />
     </>
   );
 };

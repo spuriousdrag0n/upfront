@@ -147,3 +147,14 @@ export const getRating = async ({ address }) => {
   const { data } = await axios.get(`rate/${address}`);
   return data;
 };
+
+type Report = {
+  message: string;
+  repoter: string;
+  address: string;
+};
+
+export const addReport = async (report: Report) => {
+  const { data } = await axios.post('report', { ...report });
+  return data;
+};
